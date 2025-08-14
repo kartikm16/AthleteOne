@@ -5,9 +5,12 @@
   "main": "index.js",
   "scripts": {
     "start": "npm run dev",
-    "dev": "echo 'Development server starting...' && echo 'Please add your dev server command here'"
+    "dev": "npx http-server . -p 3000 -c-1 --cors"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
 }
