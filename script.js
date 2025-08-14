@@ -1089,28 +1089,38 @@ function initializeImpactCharts() {
         });
     }
 
-    // Impact Trend Chart
+    // Impact Overview Chart
     const trendCtx = document.getElementById('impactTrendChart');
     if (trendCtx) {
         new Chart(trendCtx, {
-            type: 'line',
+            type: 'bar',
             data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                labels: ['Athletes Helped', 'NGOs Active', 'Success Rate', 'Total Aid'],
                 datasets: [{
-                    label: 'Athletes Helped',
-                    data: [120, 180, 220, 280, 350, 420],
-                    borderColor: '#667eea',
-                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                    tension: 0.4,
-                    fill: true
+                    data: [2847, 156, 89, 120],
+                    backgroundColor: ['#667eea', '#4ecdc4', '#27ae60', '#f093fb'],
+                    borderWidth: 0
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0,0,0,0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
                     }
                 }
             }
