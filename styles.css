@@ -188,27 +188,6 @@ body {
     color: #e74c3c;
 }
 
-/* Charts */
-.charts-container {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 2rem;
-    margin-bottom: 3rem;
-}
-
-.chart-card {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: 16px;
-    padding: 2rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-}
-
-.chart-card h3 {
-    margin-bottom: 1.5rem;
-    color: #333;
-    text-align: center;
-}
 
 /* AI Suggestions */
 .ai-suggestions {
