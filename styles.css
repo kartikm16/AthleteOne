@@ -189,6 +189,26 @@ body {
 }
 
 
+/* Dashboard Chart */
+.dashboard-chart {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    margin-bottom: 3rem;
+}
+
+.dashboard-chart h3 {
+    color: #333;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.dashboard-chart canvas {
+    max-height: 300px;
+}
+
 /* AI Suggestions */
 .ai-suggestions {
     background: rgba(255, 255, 255, 0.95);
