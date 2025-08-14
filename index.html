@@ -124,66 +124,131 @@
 
             <div class="log-form-container">
                 <form class="performance-form">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="session-type">Session Type</label>
-                            <select id="session-type" required>
-                                <option value="">Select session type</option>
-                                <option value="training">Training Session</option>
-                                <option value="match">Match</option>
-                                <option value="practice">Practice Drill</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="session-date">Date</label>
-                            <input type="date" id="session-date" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="duration">Duration (minutes)</label>
-                            <input type="number" id="duration" min="1" placeholder="60">
+                    <!-- Sport Selection -->
+                    <div class="sport-selection">
+                        <h3>Select Sport</h3>
+                        <div class="sport-options">
+                            <label class="sport-option">
+                                <input type="radio" name="sport" value="football" checked>
+                                <span class="sport-card">
+                                    <i class="fas fa-futbol"></i>
+                                    <span>Football</span>
+                                </span>
+                            </label>
+                            <label class="sport-option">
+                                <input type="radio" name="sport" value="cricket">
+                                <span class="sport-card">
+                                    <i class="fas fa-baseball-ball"></i>
+                                    <span>Cricket</span>
+                                </span>
+                            </label>
                         </div>
                     </div>
 
-                    <div class="metrics-input">
-                        <h3>Performance Metrics</h3>
-                        
+                    <!-- Football Form -->
+                    <div id="football-form" class="sport-form active">
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="speed">Speed (km/h)</label>
-                                <input type="number" id="speed" step="0.1" placeholder="25.0">
+                                <label for="football-session-type">Session Type</label>
+                                <select id="football-session-type" required>
+                                    <option value="">Select session type</option>
+                                    <option value="training">Training Session</option>
+                                    <option value="match">Match</option>
+                                    <option value="practice">Practice Drill</option>
+                                </select>
                             </div>
 
                             <div class="form-group">
-                                <label for="stamina">Stamina (%)</label>
-                                <input type="number" id="stamina" min="0" max="100" placeholder="85">
+                                <label for="football-session-date">Date</label>
+                                <input type="date" id="football-session-date" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="football-duration">Duration (minutes)</label>
+                                <input type="number" id="football-duration" min="1" placeholder="90">
                             </div>
                         </div>
 
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="agility">Agility Time (seconds)</label>
-                                <input type="number" id="agility" step="0.1" placeholder="7.5">
-                            </div>
+                        <div class="metrics-input">
+                            <h3>Performance Metrics</h3>
 
-                            <div class="form-group">
-                                <label for="strength">Strength (kg)</label>
-                                <input type="number" id="strength" placeholder="120">
-                            </div>
-                        </div>
-
-                        <div class="sport-specific">
-                            <h4>Sport-Specific Stats</h4>
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label for="sport-stat1">Goals/Points Scored</label>
-                                    <input type="number" id="sport-stat1" placeholder="2">
+                                    <label for="football-speed">Speed (km/h)</label>
+                                    <input type="number" id="football-speed" step="0.1" placeholder="25.0">
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="sport-stat2">Assists/Passes</label>
-                                    <input type="number" id="sport-stat2" placeholder="5">
+                                    <label for="football-stamina">Stamina (%)</label>
+                                    <input type="number" id="football-stamina" min="0" max="100" placeholder="85">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="football-agility">Agility Time (seconds)</label>
+                                    <input type="number" id="football-agility" step="0.1" placeholder="7.5">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="football-strength">Strength (kg)</label>
+                                    <input type="number" id="football-strength" placeholder="120">
+                                </div>
+                            </div>
+
+                            <div class="sport-specific">
+                                <h4>Football-Specific Stats</h4>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="football-goals">Goals Scored</label>
+                                        <input type="number" id="football-goals" placeholder="2">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="football-assists">Assists/Passes</label>
+                                        <input type="number" id="football-assists" placeholder="5">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cricket Form -->
+                    <div id="cricket-form" class="sport-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="cricket-session-type">Session Type</label>
+                                <select id="cricket-session-type" required>
+                                    <option value="">Select session type</option>
+                                    <option value="training">Training Session</option>
+                                    <option value="match">Match</option>
+                                    <option value="practice">Practice Drill</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="cricket-session-date">Date</label>
+                                <input type="date" id="cricket-session-date" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="cricket-duration">Duration (minutes)</label>
+                                <input type="number" id="cricket-duration" min="1" placeholder="300">
+                            </div>
+                        </div>
+
+                        <div class="metrics-input">
+                            <h3>Cricket Performance Metrics</h3>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="cricket-wickets">Wickets Taken</label>
+                                    <input type="number" id="cricket-wickets" min="0" placeholder="3">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="cricket-runs">Runs Scored</label>
+                                    <input type="number" id="cricket-runs" min="0" placeholder="45">
                                 </div>
                             </div>
                         </div>
