@@ -1,0 +1,13 @@
+{
+  "name": "project",
+  "version": "1.0.0",
+  "description": "A basic project setup",
+  "main": "index.js",
+  "scripts": {
+    "start": "npm run dev",
+    "dev": "echo 'Development server starting...' && echo 'Please add your dev server command here'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
