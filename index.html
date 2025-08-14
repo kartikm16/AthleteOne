@@ -3,37 +3,441 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project App</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #333;
-            text-align: center;
-        }
-        p {
-            color: #666;
-            line-height: 1.6;
-        }
-    </style>
+    <title>AthleteTracker Pro - Performance Analytics</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Welcome to Your Project</h1>
-        <p>Your development server is now running successfully!</p>
-        <p>You can start building your application by editing the files in this project.</p>
-    </div>
+    <!-- Navigation -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-running"></i>
+                <span>AthleteTracker Pro</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#dashboard" class="nav-link active" data-section="dashboard"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+                <li><a href="#log-entry" class="nav-link" data-section="log-entry"><i class="fas fa-plus-circle"></i> Log Performance</a></li>
+                <li><a href="#analytics" class="nav-link" data-section="analytics"><i class="fas fa-analytics"></i> Analytics</a></li>
+                <li><a href="#reports" class="nav-link" data-section="reports"><i class="fas fa-file-alt"></i> Reports</a></li>
+                <li><a href="#integrations" class="nav-link" data-section="integrations"><i class="fas fa-link"></i> Integrations</a></li>
+                <li><a href="#video" class="nav-link" data-section="video"><i class="fas fa-video"></i> Video Analysis</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="content-section active">
+            <div class="section-header">
+                <h1>Performance Dashboard</h1>
+                <p>Track your athletic progress and performance metrics</p>
+            </div>
+
+            <!-- Performance Overview Cards -->
+            <div class="metrics-grid">
+                <div class="metric-card speed-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div class="metric-info">
+                        <h3>Speed</h3>
+                        <div class="metric-value">24.5 km/h</div>
+                        <div class="metric-change positive">+2.3% from last week</div>
+                    </div>
+                </div>
+
+                <div class="metric-card stamina-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <div class="metric-info">
+                        <h3>Stamina</h3>
+                        <div class="metric-value">85%</div>
+                        <div class="metric-change positive">+5% from last week</div>
+                    </div>
+                </div>
+
+                <div class="metric-card agility-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <div class="metric-info">
+                        <h3>Agility</h3>
+                        <div class="metric-value">7.8s</div>
+                        <div class="metric-change negative">-0.2s from last week</div>
+                    </div>
+                </div>
+
+                <div class="metric-card strength-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-dumbbell"></i>
+                    </div>
+                    <div class="metric-info">
+                        <h3>Strength</h3>
+                        <div class="metric-value">125kg</div>
+                        <div class="metric-change positive">+8kg from last week</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-container">
+                <div class="chart-card">
+                    <h3>Performance Trends (Last 30 Days)</h3>
+                    <canvas id="performanceChart"></canvas>
+                </div>
+
+                <div class="chart-card">
+                    <h3>Training Distribution</h3>
+                    <canvas id="trainingChart"></canvas>
+                </div>
+            </div>
+
+            <!-- AI Suggestions -->
+            <div class="ai-suggestions">
+                <h3><i class="fas fa-robot"></i> AI-Driven Recommendations</h3>
+                <div class="suggestions-list">
+                    <div class="suggestion-item">
+                        <i class="fas fa-lightbulb"></i>
+                        <div>
+                            <strong>Focus on Speed Training:</strong> Your speed metrics show improvement potential. Try interval sprints 3x this week.
+                        </div>
+                    </div>
+                    <div class="suggestion-item">
+                        <i class="fas fa-target"></i>
+                        <div>
+                            <strong>Strength Plateau Alert:</strong> Consider varying your strength routine to break through the current plateau.
+                        </div>
+                    </div>
+                    <div class="suggestion-item">
+                        <i class="fas fa-clock"></i>
+                        <div>
+                            <strong>Recovery Time:</strong> Your recent training intensity suggests taking a rest day tomorrow.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Log Entry Section -->
+        <section id="log-entry" class="content-section">
+            <div class="section-header">
+                <h1>Log Performance</h1>
+                <p>Record your training sessions, matches, and practice drills</p>
+            </div>
+
+            <div class="log-form-container">
+                <form class="performance-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="session-type">Session Type</label>
+                            <select id="session-type" required>
+                                <option value="">Select session type</option>
+                                <option value="training">Training Session</option>
+                                <option value="match">Match</option>
+                                <option value="practice">Practice Drill</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="session-date">Date</label>
+                            <input type="date" id="session-date" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="duration">Duration (minutes)</label>
+                            <input type="number" id="duration" min="1" placeholder="60">
+                        </div>
+                    </div>
+
+                    <div class="metrics-input">
+                        <h3>Performance Metrics</h3>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="speed">Speed (km/h)</label>
+                                <input type="number" id="speed" step="0.1" placeholder="25.0">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="stamina">Stamina (%)</label>
+                                <input type="number" id="stamina" min="0" max="100" placeholder="85">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="agility">Agility Time (seconds)</label>
+                                <input type="number" id="agility" step="0.1" placeholder="7.5">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="strength">Strength (kg)</label>
+                                <input type="number" id="strength" placeholder="120">
+                            </div>
+                        </div>
+
+                        <div class="sport-specific">
+                            <h4>Sport-Specific Stats</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="sport-stat1">Goals/Points Scored</label>
+                                    <input type="number" id="sport-stat1" placeholder="2">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="sport-stat2">Assists/Passes</label>
+                                    <input type="number" id="sport-stat2" placeholder="5">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notes">Notes</label>
+                        <textarea id="notes" rows="3" placeholder="Additional notes about this session..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Log Performance
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Analytics Section -->
+        <section id="analytics" class="content-section">
+            <div class="section-header">
+                <h1>Performance Analytics</h1>
+                <p>Deep dive into your performance patterns and trends</p>
+            </div>
+
+            <div class="analytics-controls">
+                <div class="time-range-selector">
+                    <button class="time-btn active" data-range="7">7 Days</button>
+                    <button class="time-btn" data-range="30">30 Days</button>
+                    <button class="time-btn" data-range="90">90 Days</button>
+                    <button class="time-btn" data-range="365">1 Year</button>
+                </div>
+
+                <div class="peak-comparison">
+                    <button class="btn btn-secondary" id="compareWithPeak">
+                        <i class="fas fa-chart-bar"></i> Compare with Previous Peak
+                    </button>
+                </div>
+            </div>
+
+            <div class="analytics-grid">
+                <div class="analytics-card">
+                    <h3>Performance Peaks & Plateaus</h3>
+                    <canvas id="peaksChart"></canvas>
+                    <div class="peak-stats">
+                        <div class="peak-item">
+                            <strong>Latest Peak:</strong> Speed 26.2 km/h (2 weeks ago)
+                        </div>
+                        <div class="peak-item">
+                            <strong>Current Plateau:</strong> Strength (3 weeks duration)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analytics-card">
+                    <h3>Progress Trajectory</h3>
+                    <canvas id="trajectoryChart"></canvas>
+                </div>
+            </div>
+
+            <div class="insights-panel">
+                <h3>Performance Insights</h3>
+                <div class="insights-grid">
+                    <div class="insight-card">
+                        <i class="fas fa-trending-up"></i>
+                        <div>
+                            <h4>Best Improvement</h4>
+                            <p>Speed increased by 12% over the last month</p>
+                        </div>
+                    </div>
+
+                    <div class="insight-card">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>
+                            <h4>Needs Attention</h4>
+                            <p>Agility metrics showing decline trend</p>
+                        </div>
+                    </div>
+
+                    <div class="insight-card">
+                        <i class="fas fa-star"></i>
+                        <div>
+                            <h4>Consistency Score</h4>
+                            <p>Training frequency: 85% consistent</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Reports Section -->
+        <section id="reports" class="content-section">
+            <div class="section-header">
+                <h1>Performance Reports</h1>
+                <p>Generate comprehensive performance reports</p>
+            </div>
+
+            <div class="reports-controls">
+                <div class="report-type-selector">
+                    <label>
+                        <input type="radio" name="reportType" value="weekly" checked>
+                        <span>Weekly Report</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="reportType" value="monthly">
+                        <span>Monthly Report</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="reportType" value="custom">
+                        <span>Custom Range</span>
+                    </label>
+                </div>
+
+                <button class="btn btn-primary" id="generateReport">
+                    <i class="fas fa-file-download"></i> Generate Report
+                </button>
+            </div>
+
+            <div class="report-preview">
+                <h3>Weekly Performance Report - Week of Jan 15, 2024</h3>
+                
+                <div class="report-summary">
+                    <div class="summary-metric">
+                        <h4>Training Sessions</h4>
+                        <span class="metric-number">5</span>
+                    </div>
+                    <div class="summary-metric">
+                        <h4>Total Duration</h4>
+                        <span class="metric-number">320 min</span>
+                    </div>
+                    <div class="summary-metric">
+                        <h4>Average Performance</h4>
+                        <span class="metric-number">87%</span>
+                    </div>
+                </div>
+
+                <div class="report-recommendations">
+                    <h4>AI Training Recommendations</h4>
+                    <ul>
+                        <li>Increase agility training frequency to 3x per week</li>
+                        <li>Consider rest day after intense strength sessions</li>
+                        <li>Your speed improvement trend suggests potential for sprint training</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Integrations Section -->
+        <section id="integrations" class="content-section">
+            <div class="section-header">
+                <h1>Wearable Integrations</h1>
+                <p>Connect your fitness devices and smart gym equipment</p>
+            </div>
+
+            <div class="integrations-grid">
+                <div class="integration-card">
+                    <div class="integration-icon">
+                        <i class="fab fa-apple"></i>
+                    </div>
+                    <h3>Apple Watch</h3>
+                    <p>Sync heart rate, workout data, and activity metrics</p>
+                    <button class="btn btn-secondary">Connect</button>
+                </div>
+
+                <div class="integration-card connected">
+                    <div class="integration-icon">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <h3>Fitbit</h3>
+                    <p>Track daily activity, sleep, and workout sessions</p>
+                    <button class="btn btn-success">Connected</button>
+                </div>
+
+                <div class="integration-card">
+                    <div class="integration-icon">
+                        <i class="fas fa-satellite"></i>
+                    </div>
+                    <h3>Garmin</h3>
+                    <p>Advanced GPS tracking and performance metrics</p>
+                    <button class="btn btn-secondary">Connect</button>
+                </div>
+
+                <div class="integration-card">
+                    <div class="integration-icon">
+                        <i class="fas fa-dumbbell"></i>
+                    </div>
+                    <h3>Smart Gym Equipment</h3>
+                    <p>Automatic strength and resistance tracking</p>
+                    <button class="btn btn-secondary">Connect</button>
+                </div>
+            </div>
+
+            <div class="sync-status">
+                <h3>Sync Status</h3>
+                <div class="sync-item">
+                    <span>Fitbit - Last sync: 2 minutes ago</span>
+                    <i class="fas fa-check-circle text-success"></i>
+                </div>
+                <div class="sync-item">
+                    <span>Heart rate data - Updated: 5 minutes ago</span>
+                    <i class="fas fa-check-circle text-success"></i>
+                </div>
+            </div>
+        </section>
+
+        <!-- Video Analysis Section -->
+        <section id="video" class="content-section">
+            <div class="section-header">
+                <h1>Video Analysis</h1>
+                <p>Upload and analyze your training videos for technique improvement</p>
+            </div>
+
+            <div class="video-upload-area">
+                <div class="upload-zone" id="videoUpload">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Drag and drop your training videos here or click to browse</p>
+                    <input type="file" id="videoFile" accept="video/*" hidden>
+                    <button class="btn btn-secondary">Choose Video File</button>
+                </div>
+            </div>
+
+            <div class="video-analysis-results">
+                <h3>Recent Analysis</h3>
+                <div class="analysis-item">
+                    <div class="analysis-preview">
+                        <i class="fas fa-play-circle"></i>
+                        <span>Sprint Technique - Jan 15</span>
+                    </div>
+                    <div class="analysis-insights">
+                        <p><strong>Key Insights:</strong> Stride length could be increased by 8% for optimal speed</p>
+                        <p><strong>Recommendation:</strong> Focus on hip flexor stretching and leg drive exercises</p>
+                    </div>
+                </div>
+
+                <div class="analysis-item">
+                    <div class="analysis-preview">
+                        <i class="fas fa-play-circle"></i>
+                        <span>Agility Drill - Jan 12</span>
+                    </div>
+                    <div class="analysis-insights">
+                        <p><strong>Key Insights:</strong> Excellent change of direction, consistent form throughout</p>
+                        <p><strong>Recommendation:</strong> Try increasing drill speed by 10%</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
 </body>
 </html>
