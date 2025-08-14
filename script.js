@@ -241,6 +241,20 @@ function initializeAnalyticsControls() {
     }
 }
 
+// Sport form switching
+function switchSportForm(sport) {
+    const footballForm = document.getElementById('football-form');
+    const cricketForm = document.getElementById('cricket-form');
+
+    if (sport === 'football') {
+        footballForm.classList.add('active');
+        cricketForm.classList.remove('active');
+    } else if (sport === 'cricket') {
+        cricketForm.classList.add('active');
+        footballForm.classList.remove('active');
+    }
+}
+
 // Performance data handling
 function handlePerformanceSubmission() {
     const formData = {
