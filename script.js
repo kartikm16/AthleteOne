@@ -557,5 +557,473 @@ function showNotification(message, type = 'info') {
 // Save data periodically
 setInterval(savePerformanceData, 30000); // Save every 30 seconds
 
+// NGO Help Centre initialization
+function initializeNGOHelp() {
+    initializeNGOTabs();
+    initializeNGOSearch();
+    populateNGODirectory();
+    populateRecommendations();
+    populateApplications();
+    populateConversations();
+    populateOpportunities();
+    initializeModal();
+    initializeImpactCharts();
+}
+
+// NGO Tab navigation
+function initializeNGOTabs() {
+    const ngoTabs = document.querySelectorAll('.ngo-tab');
+    const ngoTabContents = document.querySelectorAll('.ngo-tab-content');
+
+    ngoTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            // Remove active class from all tabs and contents
+            ngoTabs.forEach(t => t.classList.remove('active'));
+            ngoTabContents.forEach(content => content.classList.remove('active'));
+
+            // Add active class to clicked tab
+            this.classList.add('active');
+
+            // Show corresponding content
+            const targetTab = this.getAttribute('data-tab');
+            document.getElementById(targetTab).classList.add('active');
+        });
+    });
+}
+
+// NGO Search and filters
+function initializeNGOSearch() {
+    const searchInput = document.getElementById('ngoSearch');
+    const searchBtn = document.getElementById('searchBtn');
+    const sportFilter = document.getElementById('sportFilter');
+    const aidTypeFilter = document.getElementById('aidTypeFilter');
+    const locationFilter = document.getElementById('locationFilter');
+    const clearFiltersBtn = document.getElementById('clearFilters');
+
+    function performSearch() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const sport = sportFilter.value;
+        const aidType = aidTypeFilter.value;
+        const location = locationFilter.value;
+
+        filterNGOs(searchTerm, sport, aidType, location);
+    }
+
+    searchBtn.addEventListener('click', performSearch);
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') performSearch();
+    });
+
+    sportFilter.addEventListener('change', performSearch);
+    aidTypeFilter.addEventListener('change', performSearch);
+    locationFilter.addEventListener('change', performSearch);
+
+    clearFiltersBtn.addEventListener('click', function() {
+        searchInput.value = '';
+        sportFilter.value = '';
+        aidTypeFilter.value = '';
+        locationFilter.value = '';
+        populateNGODirectory();
+    });
+}
+
+// Filter NGOs based on criteria
+function filterNGOs(searchTerm, sport, aidType, location) {
+    const filteredNGOs = ngoData.ngos.filter(ngo => {
+        const matchesSearch = !searchTerm ||
+            ngo.name.toLowerCase().includes(searchTerm) ||
+            ngo.mission.toLowerCase().includes(searchTerm);
+
+        const matchesSport = !sport || ngo.sports.includes(sport);
+        const matchesAidType = !aidType || ngo.aidTypes.includes(aidType);
+        const matchesLocation = !location || ngo.locations.includes(location);
+
+        return matchesSearch && matchesSport && matchesAidType && matchesLocation;
+    });
+
+    displayNGOs(filteredNGOs);
+}
+
+// Populate NGO directory
+function populateNGODirectory() {
+    displayNGOs(ngoData.ngos);
+}
+
+function displayNGOs(ngos) {
+    const grid = document.getElementById('ngoDirectoryGrid');
+    if (!grid) return;
+
+    grid.innerHTML = ngos.map(ngo => `
+        <div class="ngo-card" data-ngo-id="${ngo.id}">
+            <div class="ngo-card-header">
+                <div class="ngo-logo">${ngo.name.charAt(0)}</div>
+                <div class="ngo-info">
+                    <h4>${ngo.name}</h4>
+                    <div class="ngo-verified">
+                        <i class="fas fa-check-circle"></i>
+                        Verified NGO
+                    </div>
+                </div>
+            </div>
+            <p class="ngo-mission">${ngo.mission}</p>
+            <div class="ngo-tags">
+                ${ngo.aidTypes.map(type => `<span class="ngo-tag">${type}</span>`).join('')}
+            </div>
+            <div class="ngo-stats">
+                <div class="ngo-stat">
+                    <div class="ngo-stat-number">${ngo.athletesHelped}</div>
+                    <div class="ngo-stat-label">Athletes Helped</div>
+                </div>
+                <div class="ngo-stat">
+                    <div class="ngo-stat-number">${ngo.successRate}%</div>
+                    <div class="ngo-stat-label">Success Rate</div>
+                </div>
+            </div>
+            <div class="ngo-actions">
+                <button class="btn btn-secondary" onclick="viewNGODetails('${ngo.id}')">View Details</button>
+                <button class="btn btn-primary" onclick="applyToNGO('${ngo.id}')">Apply</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Populate AI recommendations
+function populateRecommendations() {
+    const container = document.getElementById('recommendedNgos');
+    if (!container) return;
+
+    const topNGOs = getRecommendedNGOs();
+
+    container.innerHTML = topNGOs.map((ngo, index) => `
+        <div class="recommended-ngo-card">
+            <div class="match-score">${ngo.matchScore}% Match</div>
+            <div class="ngo-card-header">
+                <div class="ngo-logo">${ngo.name.charAt(0)}</div>
+                <div class="ngo-info">
+                    <h4>${ngo.name}</h4>
+                    <div class="ngo-verified">
+                        <i class="fas fa-check-circle"></i>
+                        Verified NGO
+                    </div>
+                </div>
+            </div>
+            <p class="ngo-mission">${ngo.mission}</p>
+            <div class="ngo-tags">
+                ${ngo.aidTypes.map(type => `<span class="ngo-tag">${type}</span>`).join('')}
+            </div>
+            <div class="ngo-actions">
+                <button class="btn btn-primary" onclick="applyToNGO('${ngo.id}')">Apply Now</button>
+            </div>
+            <div style="margin-top: 1rem; padding: 1rem; background: rgba(102, 126, 234, 0.05); border-radius: 8px;">
+                <strong>Why recommended:</strong> ${ngo.reason}
+            </div>
+        </div>
+    `).join('');
+}
+
+// Get AI-recommended NGOs
+function getRecommendedNGOs() {
+    // Simulate AI matching based on athlete profile
+    const athleteProfile = {
+        sport: 'football',
+        location: 'mumbai',
+        needType: 'equipment',
+        urgency: 'medium'
+    };
+
+    return ngoData.ngos
+        .map(ngo => ({
+            ...ngo,
+            matchScore: calculateMatchScore(ngo, athleteProfile),
+            reason: generateMatchReason(ngo, athleteProfile)
+        }))
+        .sort((a, b) => b.matchScore - a.matchScore)
+        .slice(0, 5);
+}
+
+function calculateMatchScore(ngo, profile) {
+    let score = 0;
+
+    if (ngo.sports.includes(profile.sport)) score += 30;
+    if (ngo.locations.includes(profile.location) || ngo.locations.includes('nationwide')) score += 25;
+    if (ngo.aidTypes.includes(profile.needType)) score += 35;
+    score += Math.random() * 10; // Add some randomization
+
+    return Math.min(Math.round(score), 98);
+}
+
+function generateMatchReason(ngo, profile) {
+    const reasons = [];
+    if (ngo.sports.includes(profile.sport)) reasons.push(`Specializes in ${profile.sport}`);
+    if (ngo.locations.includes(profile.location)) reasons.push(`Active in ${profile.location}`);
+    if (ngo.aidTypes.includes(profile.needType)) reasons.push(`Provides ${profile.needType} support`);
+
+    return reasons.join(', ') || 'High success rate and positive reviews';
+}
+
+// Populate applications
+function populateApplications() {
+    const container = document.getElementById('applicationsList');
+    if (!container) return;
+
+    container.innerHTML = ngoData.applications.map(app => `
+        <div class="application-card">
+            <div class="application-header">
+                <div>
+                    <h4>${app.ngoName}</h4>
+                    <p>${app.aidType} • Applied on ${app.dateApplied}</p>
+                </div>
+                <span class="application-status status-${app.status.toLowerCase().replace(' ', '-')}">${app.status}</span>
+            </div>
+            <p>${app.description}</p>
+            <div class="application-progress">
+                <div class="progress-steps">
+                    <div class="progress-step">
+                        <div class="step-circle ${app.progress >= 1 ? 'completed' : ''}">1</div>
+                        <span>Submitted</span>
+                    </div>
+                    <div class="progress-step">
+                        <div class="step-circle ${app.progress >= 2 ? 'completed' : app.progress === 1.5 ? 'active' : ''}">2</div>
+                        <span>Under Review</span>
+                    </div>
+                    <div class="progress-step">
+                        <div class="step-circle ${app.progress >= 3 ? 'completed' : app.progress === 2.5 ? 'active' : ''}">3</div>
+                        <span>Decision</span>
+                    </div>
+                    <div class="progress-step">
+                        <div class="step-circle ${app.progress >= 4 ? 'completed' : app.progress === 3.5 ? 'active' : ''}">4</div>
+                        <span>Aid Delivery</span>
+                    </div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${(app.progress / 4) * 100}%"></div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Populate conversations
+function populateConversations() {
+    const container = document.getElementById('conversationItems');
+    if (!container) return;
+
+    container.innerHTML = ngoData.conversations.map(conv => `
+        <div class="conversation-item" onclick="openConversation('${conv.id}')">
+            <div class="conversation-avatar">${conv.ngoName.charAt(0)}</div>
+            <div class="conversation-info">
+                <h5>${conv.ngoName}</h5>
+                <div class="conversation-preview">${conv.lastMessage}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Populate opportunities
+function populateOpportunities() {
+    const container = document.getElementById('opportunitiesGrid');
+    if (!container) return;
+
+    container.innerHTML = ngoData.opportunities.map(opp => `
+        <div class="opportunity-card">
+            <span class="opportunity-badge">${opp.type}</span>
+            <h4>${opp.title}</h4>
+            <p><strong>By:</strong> ${opp.ngoName}</p>
+            <p>${opp.description}</p>
+            <div class="ngo-tags">
+                ${opp.eligibility.map(req => `<span class="ngo-tag">${req}</span>`).join('')}
+            </div>
+            <div class="opportunity-deadline">Deadline: ${opp.deadline}</div>
+            <button class="btn btn-primary" style="margin-top: 1rem;" onclick="applyToOpportunity('${opp.id}')">Apply</button>
+        </div>
+    `).join('');
+}
+
+// Modal functionality
+function initializeModal() {
+    const modal = document.getElementById('applicationModal');
+    const newAppBtn = document.getElementById('newApplicationBtn');
+    const closeModal = document.getElementById('closeModal');
+    const cancelBtn = document.getElementById('cancelApplication');
+    const form = document.getElementById('applicationForm');
+
+    if (newAppBtn) {
+        newAppBtn.addEventListener('click', function() {
+            populateNGODropdown();
+            modal.style.display = 'block';
+        });
+    }
+
+    if (closeModal) {
+        closeModal.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+    }
+
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+    }
+
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            submitApplication();
+        });
+    }
+
+    // Close modal when clicking outside
+    window.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+}
+
+function populateNGODropdown() {
+    const select = document.getElementById('selectedNgo');
+    if (!select) return;
+
+    select.innerHTML = '<option value="">Choose an NGO</option>' +
+        ngoData.ngos.map(ngo => `<option value="${ngo.id}">${ngo.name}</option>`).join('');
+}
+
+// Initialize impact charts
+function initializeImpactCharts() {
+    // Aid Distribution Chart
+    const aidCtx = document.getElementById('aidDistributionChart');
+    if (aidCtx) {
+        new Chart(aidCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Financial Aid', 'Equipment', 'Training', 'Medical', 'Career'],
+                datasets: [{
+                    data: [35, 25, 20, 12, 8],
+                    backgroundColor: ['#667eea', '#4ecdc4', '#ff6b6b', '#f093fb', '#45b7d1'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    }
+
+    // Impact Trend Chart
+    const trendCtx = document.getElementById('impactTrendChart');
+    if (trendCtx) {
+        new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Athletes Helped',
+                    data: [120, 180, 220, 280, 350, 420],
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+}
+
+// NGO interaction functions
+function viewNGODetails(ngoId) {
+    const ngo = ngoData.ngos.find(n => n.id === ngoId);
+    if (ngo) {
+        showNotification(`Viewing details for ${ngo.name}`, 'info');
+    }
+}
+
+function applyToNGO(ngoId) {
+    const modal = document.getElementById('applicationModal');
+    const select = document.getElementById('selectedNgo');
+
+    populateNGODropdown();
+    if (select) select.value = ngoId;
+
+    modal.style.display = 'block';
+}
+
+function applyToOpportunity(oppId) {
+    const opportunity = ngoData.opportunities.find(o => o.id === oppId);
+    if (opportunity) {
+        showNotification(`Applying to ${opportunity.title}`, 'info');
+    }
+}
+
+function openConversation(convId) {
+    const conversation = ngoData.conversations.find(c => c.id === convId);
+    const messageThread = document.getElementById('messageThread');
+
+    if (conversation && messageThread) {
+        messageThread.innerHTML = `
+            <div style="padding: 1rem; border-bottom: 1px solid #e1e8ed;">
+                <h4>${conversation.ngoName}</h4>
+            </div>
+            <div style="flex: 1; padding: 1rem; overflow-y: auto;">
+                <div style="text-align: center; color: #666; margin: 2rem 0;">
+                    <i class="fas fa-lock"></i>
+                    <p>Secure messaging with ${conversation.ngoName}</p>
+                    <p style="font-size: 0.9rem;">Your conversations are encrypted and secure.</p>
+                </div>
+            </div>
+            <div style="padding: 1rem; border-top: 1px solid #e1e8ed;">
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="text" placeholder="Type your message..." style="flex: 1; padding: 0.75rem; border: 1px solid #e1e8ed; border-radius: 8px;">
+                    <button class="btn btn-primary"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        `;
+    }
+}
+
+function submitApplication() {
+    const formData = {
+        ngoId: document.getElementById('selectedNgo').value,
+        aidType: document.getElementById('aidType').value,
+        urgency: document.getElementById('urgency').value,
+        description: document.getElementById('description').value,
+        documents: document.getElementById('documents').files
+    };
+
+    if (!formData.ngoId || !formData.aidType || !formData.urgency || !formData.description) {
+        showNotification('Please fill in all required fields', 'error');
+        return;
+    }
+
+    // Simulate application submission
+    const newApplication = {
+        id: Date.now().toString(),
+        ngoName: ngoData.ngos.find(n => n.id === formData.ngoId)?.name || 'Unknown NGO',
+        aidType: formData.aidType,
+        description: formData.description,
+        status: 'Pending',
+        progress: 1,
+        dateApplied: new Date().toLocaleDateString()
+    };
+
+    ngoData.applications.unshift(newApplication);
+    populateApplications();
+
+    document.getElementById('applicationModal').style.display = 'none';
+    document.getElementById('applicationForm').reset();
+
+    showNotification('Application submitted successfully!', 'success');
+}
+
 // Save data before page unload
 window.addEventListener('beforeunload', savePerformanceData);
