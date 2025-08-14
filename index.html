@@ -441,6 +441,254 @@
             </div>
         </section>
 
+        <!-- NGO Help Centre Section -->
+        <section id="ngo-help" class="content-section">
+            <div class="section-header">
+                <h1>NGO Help Centre</h1>
+                <p>Connect with verified NGOs for financial aid, equipment donations, and training support</p>
+            </div>
+
+            <!-- NGO Help Centre Navigation -->
+            <div class="ngo-nav-tabs">
+                <button class="ngo-tab active" data-tab="directory">NGO Directory</button>
+                <button class="ngo-tab" data-tab="recommendations">AI Recommendations</button>
+                <button class="ngo-tab" data-tab="applications">My Applications</button>
+                <button class="ngo-tab" data-tab="messages">Messages</button>
+                <button class="ngo-tab" data-tab="opportunities">Opportunities</button>
+                <button class="ngo-tab" data-tab="impact">Impact Stats</button>
+            </div>
+
+            <!-- NGO Directory Tab -->
+            <div id="directory" class="ngo-tab-content active">
+                <div class="ngo-search-filters">
+                    <div class="search-bar">
+                        <input type="text" id="ngoSearch" placeholder="Search NGOs by name or mission...">
+                        <button id="searchBtn"><i class="fas fa-search"></i></button>
+                    </div>
+
+                    <div class="filter-controls">
+                        <select id="sportFilter">
+                            <option value="">All Sports</option>
+                            <option value="football">Football</option>
+                            <option value="cricket">Cricket</option>
+                            <option value="basketball">Basketball</option>
+                            <option value="tennis">Tennis</option>
+                            <option value="athletics">Athletics</option>
+                        </select>
+
+                        <select id="aidTypeFilter">
+                            <option value="">Type of Aid</option>
+                            <option value="financial">Financial Aid</option>
+                            <option value="equipment">Equipment Donations</option>
+                            <option value="training">Training Support</option>
+                            <option value="medical">Medical Support</option>
+                            <option value="career">Career Guidance</option>
+                        </select>
+
+                        <select id="locationFilter">
+                            <option value="">Location</option>
+                            <option value="mumbai">Mumbai</option>
+                            <option value="delhi">Delhi</option>
+                            <option value="bangalore">Bangalore</option>
+                            <option value="chennai">Chennai</option>
+                            <option value="kolkata">Kolkata</option>
+                            <option value="nationwide">Nationwide</option>
+                        </select>
+
+                        <button id="clearFilters">Clear Filters</button>
+                    </div>
+                </div>
+
+                <div class="ngo-directory-grid" id="ngoDirectoryGrid">
+                    <!-- NGO cards will be populated here -->
+                </div>
+            </div>
+
+            <!-- AI Recommendations Tab -->
+            <div id="recommendations" class="ngo-tab-content">
+                <div class="ai-recommendations-header">
+                    <h3><i class="fas fa-robot"></i> Personalized NGO Recommendations</h3>
+                    <p>Based on your profile, sport, and current needs</p>
+                </div>
+
+                <div class="athlete-profile-summary">
+                    <h4>Your Profile Summary</h4>
+                    <div class="profile-stats">
+                        <span class="profile-item"><strong>Sport:</strong> Football</span>
+                        <span class="profile-item"><strong>Location:</strong> Mumbai</span>
+                        <span class="profile-item"><strong>Experience:</strong> 3 years</span>
+                        <span class="profile-item"><strong>Current Need:</strong> Equipment Support</span>
+                    </div>
+                </div>
+
+                <div class="recommended-ngos" id="recommendedNgos">
+                    <!-- Recommended NGOs will be populated here -->
+                </div>
+            </div>
+
+            <!-- My Applications Tab -->
+            <div id="applications" class="ngo-tab-content">
+                <div class="applications-header">
+                    <h3>My Applications</h3>
+                    <button class="btn btn-primary" id="newApplicationBtn">
+                        <i class="fas fa-plus"></i> New Application
+                    </button>
+                </div>
+
+                <div class="applications-list" id="applicationsList">
+                    <!-- Applications will be populated here -->
+                </div>
+            </div>
+
+            <!-- Messages Tab -->
+            <div id="messages" class="ngo-tab-content">
+                <div class="messages-container">
+                    <div class="conversations-list">
+                        <h4>Conversations</h4>
+                        <div class="conversation-items" id="conversationItems">
+                            <!-- Conversations will be populated here -->
+                        </div>
+                    </div>
+
+                    <div class="message-thread" id="messageThread">
+                        <div class="no-conversation">
+                            <i class="fas fa-comments"></i>
+                            <p>Select a conversation to start messaging</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Opportunities Tab -->
+            <div id="opportunities" class="ngo-tab-content">
+                <div class="opportunities-header">
+                    <h3>Open Opportunities & Campaigns</h3>
+                    <p>NGOs posting available opportunities for athletes</p>
+                </div>
+
+                <div class="opportunities-grid" id="opportunitiesGrid">
+                    <!-- Opportunities will be populated here -->
+                </div>
+            </div>
+
+            <!-- Impact Statistics Tab -->
+            <div id="impact" class="ngo-tab-content">
+                <div class="impact-header">
+                    <h3>Impact & Transparency</h3>
+                    <p>See the real impact being made in the sports community</p>
+                </div>
+
+                <div class="impact-stats-grid">
+                    <div class="impact-card">
+                        <div class="impact-number">2,847</div>
+                        <div class="impact-label">Athletes Helped</div>
+                    </div>
+                    <div class="impact-card">
+                        <div class="impact-number">₹1.2M</div>
+                        <div class="impact-label">Total Aid Delivered</div>
+                    </div>
+                    <div class="impact-card">
+                        <div class="impact-number">156</div>
+                        <div class="impact-label">Verified NGOs</div>
+                    </div>
+                    <div class="impact-card">
+                        <div class="impact-number">89%</div>
+                        <div class="impact-label">Success Rate</div>
+                    </div>
+                </div>
+
+                <div class="impact-charts">
+                    <div class="chart-container">
+                        <h4>Aid Distribution by Type</h4>
+                        <canvas id="aidDistributionChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h4>Monthly Impact Trend</h4>
+                        <canvas id="impactTrendChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="success-stories">
+                    <h4>Success Stories</h4>
+                    <div class="stories-grid">
+                        <div class="story-card">
+                            <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop" alt="Success Story">
+                            <div class="story-content">
+                                <h5>Rahul's Journey to National Level</h5>
+                                <p>With equipment support from Sports4All Foundation, Rahul achieved his dream of representing India in athletics.</p>
+                                <span class="story-ngo">Supported by: Sports4All Foundation</span>
+                            </div>
+                        </div>
+                        <div class="story-card">
+                            <img src="https://images.unsplash.com/photo-1544824092-6024a9c51f9d?w=400&h=300&fit=crop" alt="Success Story">
+                            <div class="story-content">
+                                <h5>Priya's Cricket Academy Dream</h5>
+                                <p>Financial aid helped Priya join a premier cricket academy and pursue her professional career.</p>
+                                <span class="story-ngo">Supported by: Future Sports Foundation</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- New Application Modal -->
+        <div id="applicationModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Submit New Application</h3>
+                    <span class="close" id="closeModal">&times;</span>
+                </div>
+                <form id="applicationForm" class="application-form">
+                    <div class="form-group">
+                        <label for="selectedNgo">Select NGO</label>
+                        <select id="selectedNgo" required>
+                            <option value="">Choose an NGO</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="aidType">Type of Aid Needed</label>
+                        <select id="aidType" required>
+                            <option value="">Select aid type</option>
+                            <option value="financial">Financial Aid</option>
+                            <option value="equipment">Equipment Donations</option>
+                            <option value="training">Training Support</option>
+                            <option value="medical">Medical Support</option>
+                            <option value="career">Career Guidance</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="urgency">Urgency Level</label>
+                        <select id="urgency" required>
+                            <option value="">Select urgency</option>
+                            <option value="low">Low - Can wait 3+ months</option>
+                            <option value="medium">Medium - Needed within 2-3 months</option>
+                            <option value="high">High - Urgent (within 1 month)</option>
+                            <option value="critical">Critical - Immediate need</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Detailed Description</label>
+                        <textarea id="description" rows="4" placeholder="Explain your situation and specific needs..." required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="documents">Supporting Documents</label>
+                        <input type="file" id="documents" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                        <small>Upload certificates, medical reports, financial documents, etc.</small>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" id="cancelApplication" class="btn btn-secondary">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Submit Application</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <!-- Video Analysis Section -->
         <section id="video" class="content-section">
             <div class="section-header">
