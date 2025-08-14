@@ -777,4 +777,13 @@ body {
     .form-row {
         grid-template-columns: 1fr;
     }
+
+    .sport-options {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .sport-card {
+        min-width: 200px;
+    }
 }
