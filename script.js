@@ -2,10 +2,10 @@
 let performanceData = {
     sessions: [],
     currentMetrics: {
-        speed: 24.5,
-        stamina: 85,
-        agility: 7.8,
-        strength: 125
+        speed: 0,
+        stamina: 0,
+        agility: 0,
+        strength: 0
     },
     historicalData: generateSampleData()
 };
