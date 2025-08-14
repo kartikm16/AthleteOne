@@ -366,6 +366,20 @@ function getLast30Days() {
     return dates;
 }
 
+function getLast7Days() {
+    const dates = [];
+    for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        dates.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+    }
+    return dates;
+}
+
+function getLastNDays(data, n) {
+    return data.slice(-n);
+}
+
 
 function updateAnalyticsCharts(range) {
     // This would update charts based on the selected time range
