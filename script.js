@@ -45,43 +45,6 @@ function initializeNavigation() {
 // Chart initialization
 function initializeCharts() {
 
-    // Peaks chart for analytics
-    const peaksCtx = document.getElementById('peaksChart');
-    if (peaksCtx) {
-        new Chart(peaksCtx, {
-            type: 'line',
-            data: {
-                labels: getLast30Days(),
-                datasets: [{
-                    label: 'Performance Score',
-                    data: calculatePerformanceScores(),
-                    borderColor: '#667eea',
-                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                    tension: 0.4,
-                    pointBackgroundColor: function(context) {
-                        const peaks = detectPeaks(calculatePerformanceScores());
-                        return peaks.includes(context.dataIndex) ? '#e74c3c' : '#667eea';
-                    },
-                    pointRadius: function(context) {
-                        const peaks = detectPeaks(calculatePerformanceScores());
-                        return peaks.includes(context.dataIndex) ? 8 : 4;
-                    }
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(0,0,0,0.1)'
-                        }
-                    }
-                }
-            }
-        });
-    }
 
     // Trajectory chart
     const trajectoryCtx = document.getElementById('trajectoryChart');
