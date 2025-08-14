@@ -686,9 +686,6 @@ body {
         grid-template-columns: 1fr;
     }
 
-    .charts-container {
-        grid-template-columns: 1fr;
-    }
 
     .analytics-grid {
         grid-template-columns: 1fr;
