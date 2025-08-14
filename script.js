@@ -346,13 +346,13 @@ function generateSampleData() {
     const speed = [];
     const stamina = [];
     const strength = [];
-    
+
     for (let i = 0; i < days; i++) {
-        speed.push(20 + Math.random() * 10 + Math.sin(i * 0.2) * 3);
-        stamina.push(70 + Math.random() * 20 + Math.cos(i * 0.15) * 5);
-        strength.push(100 + Math.random() * 40 + Math.sin(i * 0.1) * 10);
+        speed.push(0);
+        stamina.push(0);
+        strength.push(0);
     }
-    
+
     return { speed, stamina, strength };
 }
 
