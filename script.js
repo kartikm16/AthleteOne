@@ -302,32 +302,6 @@ function getLast30Days() {
     return dates;
 }
 
-function calculatePerformanceScores() {
-    // Combine all metrics into a performance score
-    const data = performanceData.historicalData;
-    const scores = [];
-    
-    for (let i = 0; i < data.speed.length; i++) {
-        const speedNorm = (data.speed[i] / 30) * 100;
-        const staminaNorm = data.stamina[i];
-        const strengthNorm = (data.strength[i] / 150) * 100;
-        
-        const score = (speedNorm + staminaNorm + strengthNorm) / 3;
-        scores.push(Math.round(score));
-    }
-    
-    return scores;
-}
-
-function detectPeaks(data) {
-    const peaks = [];
-    for (let i = 1; i < data.length - 1; i++) {
-        if (data[i] > data[i - 1] && data[i] > data[i + 1] && data[i] > 80) {
-            peaks.push(i);
-        }
-    }
-    return peaks;
-}
 
 function updateAnalyticsCharts(range) {
     // This would update charts based on the selected time range
