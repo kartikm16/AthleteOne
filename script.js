@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeCharts();
     initializeFormHandlers();
     initializeAnalyticsControls();
+    initializeNGOHelp();
     loadPerformanceData();
 });
 
