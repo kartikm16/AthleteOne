@@ -159,11 +159,21 @@ function initializeFormHandlers() {
         });
     }
 
-    // Set today's date as default
-    const dateInput = document.getElementById('session-date');
-    if (dateInput) {
-        dateInput.value = new Date().toISOString().split('T')[0];
-    }
+    // Sport selection handling
+    const sportOptions = document.querySelectorAll('input[name="sport"]');
+    sportOptions.forEach(option => {
+        option.addEventListener('change', function() {
+            switchSportForm(this.value);
+        });
+    });
+
+    // Set today's date as default for both forms
+    const footballDateInput = document.getElementById('football-session-date');
+    const cricketDateInput = document.getElementById('cricket-session-date');
+    const today = new Date().toISOString().split('T')[0];
+
+    if (footballDateInput) footballDateInput.value = today;
+    if (cricketDateInput) cricketDateInput.value = today;
 
     // Video upload handling
     const videoUpload = document.getElementById('videoUpload');
