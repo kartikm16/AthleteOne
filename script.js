@@ -456,6 +456,184 @@ function getLastNDays(data, n) {
     return data.slice(-n);
 }
 
+// Generate sample NGO data
+function generateNGOData() {
+    return [
+        {
+            id: 'ngo-1',
+            name: 'Sports4All Foundation',
+            mission: 'Empowering underprivileged athletes with equipment, training, and financial support to achieve their sporting dreams.',
+            sports: ['football', 'cricket', 'athletics'],
+            aidTypes: ['financial', 'equipment', 'training'],
+            locations: ['mumbai', 'delhi', 'pune'],
+            athletesHelped: 1247,
+            successRate: 89,
+            totalAid: '₹45L',
+            established: 2015
+        },
+        {
+            id: 'ngo-2',
+            name: 'Future Champions Trust',
+            mission: 'Building tomorrow\'s champions by providing comprehensive support for young athletes in their journey to excellence.',
+            sports: ['cricket', 'tennis', 'basketball'],
+            aidTypes: ['financial', 'career', 'medical'],
+            locations: ['bangalore', 'chennai', 'nationwide'],
+            athletesHelped: 892,
+            successRate: 94,
+            totalAid: '₹32L',
+            established: 2012
+        },
+        {
+            id: 'ngo-3',
+            name: 'Athletic Dreams Initiative',
+            mission: 'Breaking barriers in sports by providing equal opportunities for athletes from all backgrounds.',
+            sports: ['football', 'athletics', 'basketball'],
+            aidTypes: ['equipment', 'training', 'career'],
+            locations: ['kolkata', 'mumbai', 'delhi'],
+            athletesHelped: 654,
+            successRate: 87,
+            totalAid: '₹28L',
+            established: 2018
+        },
+        {
+            id: 'ngo-4',
+            name: 'Elite Sports Foundation',
+            mission: 'Supporting elite athletes with medical care, nutrition, and performance enhancement programs.',
+            sports: ['tennis', 'athletics', 'cricket'],
+            aidTypes: ['medical', 'financial', 'training'],
+            locations: ['nationwide'],
+            athletesHelped: 423,
+            successRate: 92,
+            totalAid: '₹18L',
+            established: 2020
+        },
+        {
+            id: 'ngo-5',
+            name: 'Grassroots Sports Network',
+            mission: 'Nurturing talent at the grassroots level with community-based sports development programs.',
+            sports: ['football', 'cricket', 'basketball'],
+            aidTypes: ['equipment', 'training', 'financial'],
+            locations: ['mumbai', 'pune', 'nashik'],
+            athletesHelped: 1156,
+            successRate: 85,
+            totalAid: '₹38L',
+            established: 2014
+        },
+        {
+            id: 'ngo-6',
+            name: 'Women in Sports Foundation',
+            mission: 'Promoting women\'s participation in sports through specialized support and empowerment programs.',
+            sports: ['athletics', 'tennis', 'cricket'],
+            aidTypes: ['financial', 'career', 'equipment'],
+            locations: ['delhi', 'bangalore', 'mumbai'],
+            athletesHelped: 789,
+            successRate: 91,
+            totalAid: '₹25L',
+            established: 2016
+        }
+    ];
+}
+
+function generateApplicationData() {
+    return [
+        {
+            id: 'app-1',
+            ngoName: 'Sports4All Foundation',
+            aidType: 'Equipment Support',
+            description: 'Need football boots and training gear for upcoming district championship.',
+            status: 'Under Review',
+            progress: 1.5,
+            dateApplied: '2024-01-10'
+        },
+        {
+            id: 'app-2',
+            ngoName: 'Future Champions Trust',
+            aidType: 'Financial Aid',
+            description: 'Seeking support for cricket academy fees and coaching expenses.',
+            status: 'Approved',
+            progress: 3,
+            dateApplied: '2024-01-05'
+        },
+        {
+            id: 'app-3',
+            ngoName: 'Elite Sports Foundation',
+            aidType: 'Medical Support',
+            description: 'Require physiotherapy support for knee injury recovery.',
+            status: 'Delivered',
+            progress: 4,
+            dateApplied: '2023-12-20'
+        }
+    ];
+}
+
+function generateConversationData() {
+    return [
+        {
+            id: 'conv-1',
+            ngoName: 'Sports4All Foundation',
+            lastMessage: 'We have reviewed your application and would like to schedule a call.',
+            unread: true
+        },
+        {
+            id: 'conv-2',
+            ngoName: 'Future Champions Trust',
+            lastMessage: 'Congratulations! Your financial aid has been approved.',
+            unread: false
+        },
+        {
+            id: 'conv-3',
+            ngoName: 'Elite Sports Foundation',
+            lastMessage: 'Please share your latest medical reports for review.',
+            unread: true
+        }
+    ];
+}
+
+function generateOpportunityData() {
+    return [
+        {
+            id: 'opp-1',
+            title: 'Young Athlete Scholarship Program',
+            ngoName: 'Sports4All Foundation',
+            type: 'Scholarship',
+            description: 'Full scholarship covering training, equipment, and competition expenses for promising young athletes.',
+            eligibility: ['Age 16-22', 'District level player', 'Financial need'],
+            deadline: '2024-02-15',
+            amount: '₹2,00,000'
+        },
+        {
+            id: 'opp-2',
+            title: 'Elite Training Camp',
+            ngoName: 'Future Champions Trust',
+            type: 'Training',
+            description: 'Intensive 3-month training camp with national level coaches and sports scientists.',
+            eligibility: ['State level player', 'Age 18-25', 'Medical clearance'],
+            deadline: '2024-02-28',
+            amount: 'Full sponsorship'
+        },
+        {
+            id: 'opp-3',
+            title: 'Equipment Donation Drive',
+            ngoName: 'Athletic Dreams Initiative',
+            type: 'Equipment',
+            description: 'Free distribution of sports equipment including shoes, clothing, and training gear.',
+            eligibility: ['Any age', 'Active athlete', 'Income certificate'],
+            deadline: '2024-03-10',
+            amount: 'Up to ₹15,000'
+        },
+        {
+            id: 'opp-4',
+            title: 'Sports Injury Recovery Program',
+            ngoName: 'Elite Sports Foundation',
+            type: 'Medical',
+            description: 'Comprehensive injury recovery program with physiotherapy and medical support.',
+            eligibility: ['Injured athlete', 'Medical reports', 'Coach recommendation'],
+            deadline: 'Ongoing',
+            amount: 'Full medical coverage'
+        }
+    ];
+}
+
 
 function updateAnalyticsCharts(range) {
     // This would update charts based on the selected time range
