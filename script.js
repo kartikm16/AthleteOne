@@ -316,6 +316,32 @@ function handlePerformanceSubmission() {
     showNotification(`${selectedSport.charAt(0).toUpperCase() + selectedSport.slice(1)} performance logged successfully!`, 'success');
 }
 
+function clearFormFields(sport) {
+    const today = new Date().toISOString().split('T')[0];
+
+    if (sport === 'football') {
+        document.getElementById('football-session-type').value = '';
+        document.getElementById('football-session-date').value = today;
+        document.getElementById('football-duration').value = '';
+        document.getElementById('football-speed').value = '';
+        document.getElementById('football-stamina').value = '';
+        document.getElementById('football-agility').value = '';
+        document.getElementById('football-strength').value = '';
+        document.getElementById('football-goals').value = '';
+        document.getElementById('football-assists').value = '';
+    } else if (sport === 'cricket') {
+        document.getElementById('cricket-session-type').value = '';
+        document.getElementById('cricket-session-date').value = today;
+        document.getElementById('cricket-duration').value = '';
+        document.getElementById('cricket-wickets').value = '';
+        document.getElementById('cricket-runs').value = '';
+    }
+
+    // Clear notes if it exists
+    const notesField = document.getElementById('notes');
+    if (notesField) notesField.value = '';
+}
+
 function updateDashboardMetrics() {
     const metrics = performanceData.currentMetrics;
     
