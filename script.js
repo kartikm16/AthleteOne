@@ -10,6 +10,14 @@ let performanceData = {
     historicalData: generateSampleData()
 };
 
+// NGO Help Centre data
+let ngoData = {
+    ngos: generateNGOData(),
+    applications: generateApplicationData(),
+    conversations: generateConversationData(),
+    opportunities: generateOpportunityData()
+};
+
 // Initialize the app
 document.addEventListener('DOMContentLoaded', function() {
     initializeNavigation();
