@@ -247,6 +247,69 @@ body {
     margin-top: 0.2rem;
 }
 
+/* Sport Selection */
+.sport-selection {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.sport-selection h3 {
+    color: #667eea;
+    margin-bottom: 1.5rem;
+}
+
+.sport-options {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.sport-option {
+    cursor: pointer;
+}
+
+.sport-option input[type="radio"] {
+    display: none;
+}
+
+.sport-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1.5rem;
+    border: 2px solid #e1e8ed;
+    border-radius: 12px;
+    background: white;
+    transition: all 0.3s ease;
+    min-width: 120px;
+}
+
+.sport-card i {
+    font-size: 2rem;
+    color: #667eea;
+}
+
+.sport-card span {
+    font-weight: 600;
+    color: #333;
+}
+
+.sport-option input[type="radio"]:checked + .sport-card {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+}
+
+.sport-form {
+    display: none;
+}
+
+.sport-form.active {
+    display: block;
+}
+
 /* Forms */
 .log-form-container {
     background: rgba(255, 255, 255, 0.95);
