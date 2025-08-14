@@ -44,6 +44,70 @@ function initializeNavigation() {
 
 // Chart initialization
 function initializeCharts() {
+    // Dashboard performance chart
+    const dashboardCtx = document.getElementById('dashboardChart');
+    if (dashboardCtx) {
+        new Chart(dashboardCtx, {
+            type: 'line',
+            data: {
+                labels: getLast7Days(),
+                datasets: [
+                    {
+                        label: 'Speed (km/h)',
+                        data: getLastNDays(performanceData.historicalData.speed, 7),
+                        borderColor: '#ff6b6b',
+                        backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: 'Stamina (%)',
+                        data: getLastNDays(performanceData.historicalData.stamina, 7),
+                        borderColor: '#4ecdc4',
+                        backgroundColor: 'rgba(78, 205, 196, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: 'Strength (kg/2)',
+                        data: getLastNDays(performanceData.historicalData.strength, 7).map(val => val / 2),
+                        borderColor: '#f093fb',
+                        backgroundColor: 'rgba(240, 147, 251, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0,0,0,0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(0,0,0,0.1)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                },
+                elements: {
+                    point: {
+                        radius: 5,
+                        hoverRadius: 8
+                    }
+                }
+            }
+        });
+    }
 
 
     // Trajectory chart
