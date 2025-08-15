@@ -397,15 +397,24 @@ function initializeReportGeneration() {
 
 // Sport form switching
 function switchSportForm(sport) {
+    console.log('Switching sport form to:', sport);
+
     const footballForm = document.getElementById('football-form');
     const cricketForm = document.getElementById('cricket-form');
+
+    if (!footballForm || !cricketForm) {
+        console.error('Sport forms not found');
+        return;
+    }
 
     if (sport === 'football') {
         footballForm.classList.add('active');
         cricketForm.classList.remove('active');
+        console.log('Football form activated');
     } else if (sport === 'cricket') {
         cricketForm.classList.add('active');
         footballForm.classList.remove('active');
+        console.log('Cricket form activated');
     }
 }
 
