@@ -766,18 +766,143 @@ function generatePerformanceReport() {
     }, 2000);
 }
 
-function loadPerformanceData() {
-    // Load data from localStorage if available
-    const savedData = localStorage.getItem('athleteTrackerData');
-    if (savedData) {
-        try {
-            const parsed = JSON.parse(savedData);
-            performanceData = { ...performanceData, ...parsed };
+async function loadPerformanceData() {
+    try {
+        // Try to load from backend first
+        const response = await apiCall('/performance?days=30');
+        if (response && response.entries) {
+            performanceData.sessions = response.entries;
+
+            // Update current metrics from latest football entry
+            const latestFootballEntry = response.entries.find(entry =>
+                entry.sport === 'football' &&
+                (entry.speed || entry.stamina || entry.agility || entry.strength)
+            );
+
+            if (latestFootballEntry) {
+                performanceData.currentMetrics = {
+                    speed: latestFootballEntry.speed || 0,
+                    stamina: latestFootballEntry.stamina || 0,
+                    agility: latestFootballEntry.agility || 0,
+                    strength: latestFootballEntry.strength || 0
+                };
+            }
+
             updateDashboardMetrics();
-        } catch (e) {
-            console.error('Error loading saved data:', e);
+            console.log('Loaded performance data from backend');
+        }
+    } catch (error) {
+        console.error('Failed to load from backend, trying localStorage:', error);
+
+        // Fallback to localStorage
+        const savedData = localStorage.getItem('athleteTrackerData');
+        if (savedData) {
+            try {
+                const parsed = JSON.parse(savedData);
+                performanceData = { ...performanceData, ...parsed };
+                updateDashboardMetrics();
+                console.log('Loaded performance data from localStorage');
+            } catch (e) {
+                console.error('Error loading saved data:', e);
+            }
         }
     }
+}
+
+async function loadDashboardData() {
+    try {
+        const response = await apiCall('/dashboard/metrics');
+        if (response) {
+            performanceData.currentMetrics = response.current_metrics;
+            updateDashboardMetrics();
+
+            // Update chart if we have daily metrics
+            if (response.daily_metrics) {
+                updateDashboardChart(response.daily_metrics);
+            }
+        }
+    } catch (error) {
+        console.error('Failed to load dashboard data:', error);
+    }
+}
+
+function updateDashboardChart(dailyMetrics) {
+    const dashboardCtx = document.getElementById('dashboardChart');
+    if (!dashboardCtx || !window.Chart) return;
+
+    // Destroy existing chart if it exists
+    if (window.dashboardChart) {
+        window.dashboardChart.destroy();
+    }
+
+    const dates = Object.keys(dailyMetrics).slice(-7);
+    const speedData = dates.map(date => dailyMetrics[date].speed);
+    const staminaData = dates.map(date => dailyMetrics[date].stamina);
+    const strengthData = dates.map(date => dailyMetrics[date].strength / 2); // Scale for better visualization
+
+    window.dashboardChart = new Chart(dashboardCtx, {
+        type: 'line',
+        data: {
+            labels: dates.map(date => {
+                const d = new Date(date);
+                return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            }),
+            datasets: [
+                {
+                    label: 'Speed (km/h)',
+                    data: speedData,
+                    borderColor: '#ff6b6b',
+                    backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'Stamina (%)',
+                    data: staminaData,
+                    borderColor: '#4ecdc4',
+                    backgroundColor: 'rgba(78, 205, 196, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'Strength (kg/2)',
+                    data: strengthData,
+                    borderColor: '#f093fb',
+                    backgroundColor: 'rgba(240, 147, 251, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0,0,0,0.1)'
+                    }
+                },
+                x: {
+                    grid: {
+                        color: 'rgba(0,0,0,0.1)'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top'
+                }
+            },
+            elements: {
+                point: {
+                    radius: 5,
+                    hoverRadius: 8
+                }
+            }
+        }
+    });
 }
 
 function savePerformanceData() {
