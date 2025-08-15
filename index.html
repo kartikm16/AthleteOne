@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AthleteTracker Pro - Performance Analytics</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-running"></i>
+                <span>AthleteTracker Pro</span>
+            </div>
+            <button class="hamburger-menu" id="hamburgerMenu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="#dashboard" class="nav-link active" data-section="dashboard"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+                <li><a href="#log-entry" class="nav-link" data-section="log-entry"><i class="fas fa-plus-circle"></i> Log Performance</a></li>
+                <li><a href="#analytics" class="nav-link" data-section="analytics"><i class="fas fa-analytics"></i> Analytics</a></li>
+                <li><a href="#reports" class="nav-link" data-section="reports"><i class="fas fa-file-alt"></i> Reports</a></li>
+                <li><a href="#integrations" class="nav-link" data-section="integrations"><i class="fas fa-link"></i> Integrations</a></li>
+                <li><a href="#ngo-help" class="nav-link" data-section="ngo-help"><i class="fas fa-hands-helping"></i> NGO Help Centre</a></li>
+                <li><a href="#video" class="nav-link" data-section="video"><i class="fas fa-video"></i> Video Analysis</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="content-section active">
+            <div class="section-header">
+                <h1>Performance Dashboard</h1>
+                <p>Track your athletic progress and performance metrics</p>
+            </div>
+
+            <!-- Performance Overview Cards -->
+            <div class="metrics-grid">
+                <div class="metric-card speed-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div class="metric-info">
+                        <h3>Speed</h3>
+                        <div class="metric-value">0 km/h</div>
+                        <div class="metric-change">No data</div>
+                    </div>
+                </div>
+
+                <div class="metric-card stamina-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <div class="metric-info">
+                        <h3>Stamina</h3>
+                        <div class="metric-value">0%</div>
+                        <div class="metric-change">No data</div>
+                    </div>
+                </div>
+
+                <div class="metric-card agility-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <div class="metric-info">
+                        <h3>Agility</h3>
+                        <div class="metric-value">0s</div>
+                        <div class="metric-change">No data</div>
+                    </div>
+                </div>
+
+                <div class="metric-card strength-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-dumbbell"></i>
+                    </div>
+                    <div class="metric-info">
+                        <h3>Strength</h3>
+                        <div class="metric-value">0kg</div>
+                        <div class="metric-change">No data</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Graph -->
+            <div class="dashboard-chart">
+                <h3>Performance Overview (Last 7 Days)</h3>
+                <canvas id="dashboardChart"></canvas>
+            </div>
+
+            <!-- AI Suggestions -->
+            <div class="ai-suggestions">
+                <h3><i class="fas fa-robot"></i> AI-Driven Recommendations</h3>
+                <div class="suggestions-list">
+                    <div class="suggestion-item">
+                        <i class="fas fa-lightbulb"></i>
+                        <div>
+                            <strong>Focus on Speed Training:</strong> Your speed metrics show improvement potential. Try interval sprints 3x this week.
+                        </div>
+                    </div>
+                    <div class="suggestion-item">
+                        <i class="fas fa-target"></i>
+                        <div>
+                            <strong>Strength Plateau Alert:</strong> Consider varying your strength routine to break through the current plateau.
+                        </div>
+                    </div>
+                    <div class="suggestion-item">
+                        <i class="fas fa-clock"></i>
+                        <div>
+                            <strong>Recovery Time:</strong> Your recent training intensity suggests taking a rest day tomorrow.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Log Entry Section -->
+        <section id="log-entry" class="content-section">
+            <div class="section-header">
+                <h1>Log Performance</h1>
+                <p>Record your training sessions, matches, and practice drills</p>
+            </div>
+
+            <div class="log-form-container">
+                <form class="performance-form">
+                    <!-- Sport Selection -->
+                    <div class="sport-selection">
+                        <h3>Select Sport</h3>
+                        <div class="sport-options">
+                            <label class="sport-option">
+                                <input type="radio" name="sport" value="football" checked>
+                                <span class="sport-card">
+                                    <i class="fas fa-futbol"></i>
+                                    <span>Football</span>
+                                </span>
+                            </label>
+                            <label class="sport-option">
+                                <input type="radio" name="sport" value="cricket">
+                                <span class="sport-card">
+                                    <i class="fas fa-baseball-ball"></i>
+                                    <span>Cricket</span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Football Form -->
+                    <div id="football-form" class="sport-form active">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="football-session-type">Session Type</label>
+                                <select id="football-session-type" required>
+                                    <option value="">Select session type</option>
+                                    <option value="training">Training Session</option>
+                                    <option value="match">Match</option>
+                                    <option value="practice">Practice Drill</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="football-session-date">Date</label>
+                                <input type="date" id="football-session-date" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="football-duration">Duration (minutes)</label>
+                                <input type="number" id="football-duration" min="1" placeholder="90">
+                            </div>
+                        </div>
+
+                        <div class="metrics-input">
+                            <h3>Performance Metrics</h3>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="football-speed">Speed (km/h)</label>
+                                    <input type="number" id="football-speed" step="0.1" placeholder="25.0">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="football-stamina">Stamina (%)</label>
+                                    <input type="number" id="football-stamina" min="0" max="100" placeholder="85">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="football-agility">Agility Time (seconds)</label>
+                                    <input type="number" id="football-agility" step="0.1" placeholder="7.5">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="football-strength">Strength (kg)</label>
+                                    <input type="number" id="football-strength" placeholder="120">
+                                </div>
+                            </div>
+
+                            <div class="sport-specific">
+                                <h4>Football-Specific Stats</h4>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="football-goals">Goals Scored</label>
+                                        <input type="number" id="football-goals" placeholder="2">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="football-assists">Assists/Passes</label>
+                                        <input type="number" id="football-assists" placeholder="5">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cricket Form -->
+                    <div id="cricket-form" class="sport-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="cricket-session-type">Session Type</label>
+                                <select id="cricket-session-type" required>
+                                    <option value="">Select session type</option>
+                                    <option value="training">Training Session</option>
+                                    <option value="match">Match</option>
+                                    <option value="practice">Practice Drill</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="cricket-session-date">Date</label>
+                                <input type="date" id="cricket-session-date" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="cricket-duration">Duration (minutes)</label>
+                                <input type="number" id="cricket-duration" min="1" placeholder="300">
+                            </div>
+                        </div>
+
+                        <div class="metrics-input">
+                            <h3>Cricket Performance Metrics</h3>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="cricket-wickets">Wickets Taken</label>
+                                    <input type="number" id="cricket-wickets" min="0" placeholder="3">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="cricket-runs">Runs Scored</label>
+                                    <input type="number" id="cricket-runs" min="0" placeholder="45">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notes">Notes</label>
+                        <textarea id="notes" rows="3" placeholder="Additional notes about this session..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Log Performance
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Analytics Section -->
+        <section id="analytics" class="content-section">
+            <div class="section-header">
+                <h1>Performance Analytics</h1>
+                <p>Deep dive into your performance patterns and trends</p>
+            </div>
+
+            <div class="analytics-controls">
+                <div class="time-range-selector">
+                    <button class="time-btn active" data-range="7">7 Days</button>
+                    <button class="time-btn" data-range="30">30 Days</button>
+                    <button class="time-btn" data-range="90">90 Days</button>
+                    <button class="time-btn" data-range="365">1 Year</button>
+                </div>
+
+                <div class="peak-comparison">
+                    <button class="btn btn-secondary" id="compareWithPeak">
+                        <i class="fas fa-chart-bar"></i> Compare with Previous Peak
+                    </button>
+                </div>
+            </div>
+
+            <div class="analytics-grid">
+                <div class="analytics-card">
+                    <h3>Current Performance Metrics</h3>
+                    <canvas id="trajectoryChart"></canvas>
+                </div>
+            </div>
+
+            <div class="insights-panel">
+                <h3>Performance Insights</h3>
+                <div class="insights-grid">
+                    <div class="insight-card">
+                        <i class="fas fa-trending-up"></i>
+                        <div>
+                            <h4>Best Improvement</h4>
+                            <p>Speed increased by 12% over the last month</p>
+                        </div>
+                    </div>
+
+                    <div class="insight-card">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>
+                            <h4>Needs Attention</h4>
+                            <p>Agility metrics showing decline trend</p>
+                        </div>
+                    </div>
+
+                    <div class="insight-card">
+                        <i class="fas fa-star"></i>
+                        <div>
+                            <h4>Consistency Score</h4>
+                            <p>Training frequency: 85% consistent</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Reports Section -->
+        <section id="reports" class="content-section">
+            <div class="section-header">
+                <h1>Performance Reports</h1>
+                <p>Generate comprehensive performance reports</p>
+            </div>
+
+            <div class="reports-controls">
+                <div class="report-type-selector">
+                    <label>
+                        <input type="radio" name="reportType" value="weekly" checked>
+                        <span>Weekly Report</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="reportType" value="monthly">
+                        <span>Monthly Report</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="reportType" value="custom">
+                        <span>Custom Range</span>
+                    </label>
+                </div>
+
+                <button class="btn btn-primary" id="generateReport">
+                    <i class="fas fa-file-download"></i> Generate Report
+                </button>
+            </div>
+
+            <div class="report-preview">
+                <h3>Weekly Performance Report - Week of Jan 15, 2024</h3>
+                
+                <div class="report-summary">
+                    <div class="summary-metric">
+                        <h4>Training Sessions</h4>
+                        <span class="metric-number">5</span>
+                    </div>
+                    <div class="summary-metric">
+                        <h4>Total Duration</h4>
+                        <span class="metric-number">320 min</span>
+                    </div>
+                    <div class="summary-metric">
+                        <h4>Average Performance</h4>
+                        <span class="metric-number">87%</span>
+                    </div>
+                </div>
+
+                <div class="report-recommendations">
+                    <h4>AI Training Recommendations</h4>
+                    <ul>
+                        <li>Increase agility training frequency to 3x per week</li>
+                        <li>Consider rest day after intense strength sessions</li>
+                        <li>Your speed improvement trend suggests potential for sprint training</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Integrations Section -->
+        <section id="integrations" class="content-section">
+            <div class="section-header">
+                <h1>Wearable Integrations</h1>
+                <p>Connect your fitness devices and smart gym equipment</p>
+            </div>
+
+            <div class="integrations-grid">
+                <div class="integration-card">
+                    <div class="integration-icon">
+                        <i class="fab fa-apple"></i>
+                    </div>
+                    <h3>Apple Watch</h3>
+                    <p>Sync heart rate, workout data, and activity metrics</p>
+                    <button class="btn btn-secondary">Connect</button>
+                </div>
+
+                <div class="integration-card connected">
+                    <div class="integration-icon">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <h3>Fitbit</h3>
+                    <p>Track daily activity, sleep, and workout sessions</p>
+                    <button class="btn btn-success">Connected</button>
+                </div>
+
+                <div class="integration-card">
+                    <div class="integration-icon">
+                        <i class="fas fa-satellite"></i>
+                    </div>
+                    <h3>Garmin</h3>
+                    <p>Advanced GPS tracking and performance metrics</p>
+                    <button class="btn btn-secondary">Connect</button>
+                </div>
+
+                <div class="integration-card">
+                    <div class="integration-icon">
+                        <i class="fas fa-dumbbell"></i>
+                    </div>
+                    <h3>Smart Gym Equipment</h3>
+                    <p>Automatic strength and resistance tracking</p>
+                    <button class="btn btn-secondary">Connect</button>
+                </div>
+            </div>
+
+            <div class="sync-status">
+                <h3>Sync Status</h3>
+                <div class="sync-item">
+                    <span>Fitbit - Last sync: 2 minutes ago</span>
+                    <i class="fas fa-check-circle text-success"></i>
+                </div>
+                <div class="sync-item">
+                    <span>Heart rate data - Updated: 5 minutes ago</span>
+                    <i class="fas fa-check-circle text-success"></i>
+                </div>
+            </div>
+        </section>
+
+        <!-- NGO Help Centre Section -->
+        <section id="ngo-help" class="content-section">
+            <div class="section-header">
+                <h1>NGO Help Centre</h1>
+                <p>Connect with verified NGOs for financial aid, equipment donations, and training support</p>
+            </div>
+
+            <!-- NGO Help Centre Navigation -->
+            <div class="ngo-nav-tabs">
+                <button class="ngo-tab active" data-tab="directory">NGO Directory</button>
+                <button class="ngo-tab" data-tab="recommendations">AI Recommendations</button>
+                <button class="ngo-tab" data-tab="applications">My Applications</button>
+                <button class="ngo-tab" data-tab="messages">Messages</button>
+                <button class="ngo-tab" data-tab="opportunities">Opportunities</button>
+                <button class="ngo-tab" data-tab="impact">Impact Stats</button>
+            </div>
+
+            <!-- NGO Directory Tab -->
+            <div id="directory" class="ngo-tab-content active">
+                <div class="ngo-search-filters">
+                    <div class="search-bar">
+                        <input type="text" id="ngoSearch" placeholder="Search NGOs by name or mission...">
+                        <button id="searchBtn"><i class="fas fa-search"></i></button>
+                    </div>
+
+                    <div class="filter-controls">
+                        <select id="sportFilter">
+                            <option value="">All Sports</option>
+                            <option value="football">Football</option>
+                            <option value="cricket">Cricket</option>
+                            <option value="basketball">Basketball</option>
+                            <option value="tennis">Tennis</option>
+                            <option value="athletics">Athletics</option>
+                        </select>
+
+                        <select id="aidTypeFilter">
+                            <option value="">Type of Aid</option>
+                            <option value="financial">Financial Aid</option>
+                            <option value="equipment">Equipment Donations</option>
+                            <option value="training">Training Support</option>
+                            <option value="medical">Medical Support</option>
+                            <option value="career">Career Guidance</option>
+                        </select>
+
+                        <select id="locationFilter">
+                            <option value="">Location</option>
+                            <option value="mumbai">Mumbai</option>
+                            <option value="delhi">Delhi</option>
+                            <option value="bangalore">Bangalore</option>
+                            <option value="chennai">Chennai</option>
+                            <option value="kolkata">Kolkata</option>
+                            <option value="nationwide">Nationwide</option>
+                        </select>
+
+                        <button id="clearFilters">Clear Filters</button>
+                    </div>
+                </div>
+
+                <div class="ngo-directory-grid" id="ngoDirectoryGrid">
+                    <!-- NGO cards will be populated here -->
+                </div>
+            </div>
+
+            <!-- AI Recommendations Tab -->
+            <div id="recommendations" class="ngo-tab-content">
+                <div class="ai-recommendations-header">
+                    <h3><i class="fas fa-robot"></i> Personalized NGO Recommendations</h3>
+                    <p>Based on your profile, sport, and current needs</p>
+                </div>
+
+                <div class="athlete-profile-summary">
+                    <h4>Your Profile Summary</h4>
+                    <div class="profile-stats">
+                        <span class="profile-item"><strong>Sport:</strong> Football</span>
+                        <span class="profile-item"><strong>Location:</strong> Mumbai</span>
+                        <span class="profile-item"><strong>Experience:</strong> 3 years</span>
+                        <span class="profile-item"><strong>Current Need:</strong> Equipment Support</span>
+                    </div>
+                </div>
+
+                <div class="recommended-ngos" id="recommendedNgos">
+                    <!-- Recommended NGOs will be populated here -->
+                </div>
+            </div>
+
+            <!-- My Applications Tab -->
+            <div id="applications" class="ngo-tab-content">
+                <div class="applications-header">
+                    <h3>My Applications</h3>
+                    <button class="btn btn-primary" id="newApplicationBtn">
+                        <i class="fas fa-plus"></i> New Application
+                    </button>
+                </div>
+
+                <div class="applications-list" id="applicationsList">
+                    <!-- Applications will be populated here -->
+                </div>
+            </div>
+
+            <!-- Messages Tab -->
+            <div id="messages" class="ngo-tab-content">
+                <div class="messages-container">
+                    <div class="conversations-list">
+                        <h4>Conversations</h4>
+                        <div class="conversation-items" id="conversationItems">
+                            <!-- Conversations will be populated here -->
+                        </div>
+                    </div>
+
+                    <div class="message-thread" id="messageThread">
+                        <div class="no-conversation">
+                            <i class="fas fa-comments"></i>
+                            <p>Select a conversation to start messaging</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Opportunities Tab -->
+            <div id="opportunities" class="ngo-tab-content">
+                <div class="opportunities-header">
+                    <h3>Open Opportunities & Campaigns</h3>
+                    <p>NGOs posting available opportunities for athletes</p>
+                </div>
+
+                <div class="opportunities-grid" id="opportunitiesGrid">
+                    <!-- Opportunities will be populated here -->
+                </div>
+            </div>
+
+            <!-- Impact Statistics Tab -->
+            <div id="impact" class="ngo-tab-content">
+                <div class="impact-header">
+                    <h3>Impact & Transparency</h3>
+                    <p>See the real impact being made in the sports community</p>
+                </div>
+
+                <div class="impact-stats-grid">
+                    <div class="impact-card">
+                        <div class="impact-number">2,847</div>
+                        <div class="impact-label">Athletes Helped</div>
+                    </div>
+                    <div class="impact-card">
+                        <div class="impact-number">₹1.2M</div>
+                        <div class="impact-label">Total Aid Delivered</div>
+                    </div>
+                    <div class="impact-card">
+                        <div class="impact-number">156</div>
+                        <div class="impact-label">Verified NGOs</div>
+                    </div>
+                    <div class="impact-card">
+                        <div class="impact-number">89%</div>
+                        <div class="impact-label">Success Rate</div>
+                    </div>
+                </div>
+
+                <div class="impact-charts">
+                    <div class="chart-container">
+                        <h4>Aid Distribution by Type</h4>
+                        <canvas id="aidDistributionChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h4>Impact Overview</h4>
+                        <canvas id="impactTrendChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="success-stories">
+                    <h4>Success Stories</h4>
+                    <div class="stories-grid">
+                        <div class="story-card">
+                            <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop" alt="Success Story">
+                            <div class="story-content">
+                                <h5>Rahul's Journey to National Level</h5>
+                                <p>With equipment support from Sports4All Foundation, Rahul achieved his dream of representing India in athletics.</p>
+                                <span class="story-ngo">Supported by: Sports4All Foundation</span>
+                            </div>
+                        </div>
+                        <div class="story-card">
+                            <img src="https://images.unsplash.com/photo-1544824092-6024a9c51f9d?w=400&h=300&fit=crop" alt="Success Story">
+                            <div class="story-content">
+                                <h5>Priya's Cricket Academy Dream</h5>
+                                <p>Financial aid helped Priya join a premier cricket academy and pursue her professional career.</p>
+                                <span class="story-ngo">Supported by: Future Sports Foundation</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- New Application Modal -->
+        <div id="applicationModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Submit New Application</h3>
+                    <span class="close" id="closeModal">&times;</span>
+                </div>
+                <form id="applicationForm" class="application-form">
+                    <div class="form-group">
+                        <label for="selectedNgo">Select NGO</label>
+                        <select id="selectedNgo" required>
+                            <option value="">Choose an NGO</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="aidType">Type of Aid Needed</label>
+                        <select id="aidType" required>
+                            <option value="">Select aid type</option>
+                            <option value="financial">Financial Aid</option>
+                            <option value="equipment">Equipment Donations</option>
+                            <option value="training">Training Support</option>
+                            <option value="medical">Medical Support</option>
+                            <option value="career">Career Guidance</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="urgency">Urgency Level</label>
+                        <select id="urgency" required>
+                            <option value="">Select urgency</option>
+                            <option value="low">Low - Can wait 3+ months</option>
+                            <option value="medium">Medium - Needed within 2-3 months</option>
+                            <option value="high">High - Urgent (within 1 month)</option>
+                            <option value="critical">Critical - Immediate need</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Detailed Description</label>
+                        <textarea id="description" rows="4" placeholder="Explain your situation and specific needs..." required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="documents">Supporting Documents</label>
+                        <input type="file" id="documents" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                        <small>Upload certificates, medical reports, financial documents, etc.</small>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" id="cancelApplication" class="btn btn-secondary">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Submit Application</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Video Analysis Section -->
+        <section id="video" class="content-section">
+            <div class="section-header">
+                <h1>Video Analysis</h1>
+                <p>Upload and analyze your training videos for technique improvement</p>
+            </div>
+
+            <div class="video-upload-area">
+                <div class="upload-zone" id="videoUpload">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Drag and drop your training videos here or click to browse</p>
+                    <input type="file" id="videoFile" accept="video/*" hidden>
+                    <button class="btn btn-secondary">Choose Video File</button>
+                </div>
+            </div>
+
+            <div class="video-analysis-results">
+                <h3>Recent Analysis</h3>
+                <div class="analysis-item">
+                    <div class="analysis-preview">
+                        <i class="fas fa-play-circle"></i>
+                        <span>Sprint Technique - Jan 15</span>
+                    </div>
+                    <div class="analysis-insights">
+                        <p><strong>Key Insights:</strong> Stride length could be increased by 8% for optimal speed</p>
+                        <p><strong>Recommendation:</strong> Focus on hip flexor stretching and leg drive exercises</p>
+                    </div>
+                </div>
+
+                <div class="analysis-item">
+                    <div class="analysis-preview">
+                        <i class="fas fa-play-circle"></i>
+                        <span>Agility Drill - Jan 12</span>
+                    </div>
+                    <div class="analysis-insights">
+                        <p><strong>Key Insights:</strong> Excellent change of direction, consistent form throughout</p>
+                        <p><strong>Recommendation:</strong> Try increasing drill speed by 10%</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
