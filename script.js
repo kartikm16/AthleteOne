@@ -325,7 +325,7 @@ function switchSportForm(sport) {
 }
 
 // Performance data handling
-function handlePerformanceSubmission() {
+async function handlePerformanceSubmission() {
     try {
         const selectedSportElement = document.querySelector('input[name="sport"]:checked');
         if (!selectedSportElement) {
@@ -347,31 +347,27 @@ function handlePerformanceSubmission() {
 
             formData = {
                 sport: 'football',
-                sessionType: sessionType.value,
+                session_type: sessionType.value,
                 date: date.value,
-                duration: document.getElementById('football-duration')?.value || '',
-                speed: document.getElementById('football-speed')?.value || '',
-                stamina: document.getElementById('football-stamina')?.value || '',
-                agility: document.getElementById('football-agility')?.value || '',
-                strength: document.getElementById('football-strength')?.value || '',
-                goals: document.getElementById('football-goals')?.value || '',
-                assists: document.getElementById('football-assists')?.value || '',
-                notes: ''
+                duration: document.getElementById('football-duration')?.value || null,
+                speed: document.getElementById('football-speed')?.value || null,
+                stamina: document.getElementById('football-stamina')?.value || null,
+                agility: document.getElementById('football-agility')?.value || null,
+                strength: document.getElementById('football-strength')?.value || null,
+                goals: document.getElementById('football-goals')?.value || null,
+                assists: document.getElementById('football-assists')?.value || null,
+                notes: document.getElementById('notes')?.value || ''
             };
 
-            // Update current metrics if provided (for football)
-            if (formData.speed && !isNaN(parseFloat(formData.speed))) {
-                performanceData.currentMetrics.speed = parseFloat(formData.speed);
-            }
-            if (formData.stamina && !isNaN(parseFloat(formData.stamina))) {
-                performanceData.currentMetrics.stamina = parseFloat(formData.stamina);
-            }
-            if (formData.agility && !isNaN(parseFloat(formData.agility))) {
-                performanceData.currentMetrics.agility = parseFloat(formData.agility);
-            }
-            if (formData.strength && !isNaN(parseFloat(formData.strength))) {
-                performanceData.currentMetrics.strength = parseFloat(formData.strength);
-            }
+            // Convert empty strings to null for numeric fields
+            ['duration', 'speed', 'stamina', 'agility', 'strength', 'goals', 'assists'].forEach(field => {
+                if (formData[field] === '' || formData[field] === '0') {
+                    formData[field] = null;
+                } else if (formData[field] !== null) {
+                    formData[field] = parseFloat(formData[field]);
+                }
+            });
+
         } else if (selectedSport === 'cricket') {
             const sessionType = document.getElementById('cricket-session-type');
             const date = document.getElementById('cricket-session-date');
@@ -383,44 +379,61 @@ function handlePerformanceSubmission() {
 
             formData = {
                 sport: 'cricket',
-                sessionType: sessionType.value,
+                session_type: sessionType.value,
                 date: date.value,
-                duration: document.getElementById('cricket-duration')?.value || '',
-                wickets: document.getElementById('cricket-wickets')?.value || '',
-                runs: document.getElementById('cricket-runs')?.value || '',
-                notes: ''
+                duration: document.getElementById('cricket-duration')?.value || null,
+                wickets: document.getElementById('cricket-wickets')?.value || null,
+                runs: document.getElementById('cricket-runs')?.value || null,
+                notes: document.getElementById('notes')?.value || ''
             };
+
+            // Convert empty strings to null for numeric fields
+            ['duration', 'wickets', 'runs'].forEach(field => {
+                if (formData[field] === '' || formData[field] === '0') {
+                    formData[field] = null;
+                } else if (formData[field] !== null) {
+                    formData[field] = parseInt(formData[field]);
+                }
+            });
         }
 
         // Validate required fields
-        if (!formData.sessionType || !formData.date) {
+        if (!formData.session_type || !formData.date) {
             showNotification('Please fill in all required fields (Session Type and Date)', 'error');
             return;
         }
 
-        // Save to performance data
-        performanceData.sessions.push({
-            ...formData,
-            id: Date.now(),
-            timestamp: new Date()
-        });
+        // Submit to backend
+        showNotification('Submitting performance data...', 'info');
 
-        // Update dashboard metrics (only for football since cricket doesn't have these metrics)
-        if (selectedSport === 'football') {
-            updateDashboardMetrics();
+        const response = await apiCall('/performance', 'POST', formData);
+
+        if (response.entry) {
+            // Update local data
+            performanceData.sessions.push(response.entry);
+
+            // Update current metrics if it's football data
+            if (selectedSport === 'football' && response.entry) {
+                if (response.entry.speed) performanceData.currentMetrics.speed = response.entry.speed;
+                if (response.entry.stamina) performanceData.currentMetrics.stamina = response.entry.stamina;
+                if (response.entry.agility) performanceData.currentMetrics.agility = response.entry.agility;
+                if (response.entry.strength) performanceData.currentMetrics.strength = response.entry.strength;
+
+                updateDashboardMetrics();
+            }
+
+            // Clear form
+            clearFormFields(selectedSport);
+
+            showNotification(`${selectedSport.charAt(0).toUpperCase() + selectedSport.slice(1)} performance logged successfully!`, 'success');
+
+            // Refresh dashboard data
+            await loadDashboardData();
         }
-
-        // Clear form
-        clearFormFields(selectedSport);
-
-        showNotification(`${selectedSport.charAt(0).toUpperCase() + selectedSport.slice(1)} performance logged successfully!`, 'success');
-
-        // Save data to localStorage
-        savePerformanceData();
 
     } catch (error) {
         console.error('Error submitting performance data:', error);
-        showNotification('An error occurred while saving your data. Please try again.', 'error');
+        showNotification('Failed to submit performance data. Please check your connection and try again.', 'error');
     }
 }
 
