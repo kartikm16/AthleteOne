@@ -747,23 +747,182 @@ function generateOpportunityData() {
 }
 
 
-function updateAnalyticsCharts(range) {
-    // This would update charts based on the selected time range
-    showNotification(`Updated analytics for ${range} days`, 'info');
+async function updateAnalyticsCharts(range) {
+    try {
+        showNotification(`Loading analytics for ${range} days...`, 'info');
+
+        const response = await apiCall(`/analytics/charts?days=${range}`);
+        if (response) {
+            updateTrajectoryChart(response);
+            showNotification(`Updated analytics for ${range} days`, 'success');
+        }
+    } catch (error) {
+        console.error('Failed to update analytics:', error);
+        showNotification('Failed to load analytics data', 'error');
+    }
 }
 
-function showPeakComparison() {
-    showNotification('Comparing with your previous peak performance from 2 weeks ago', 'info');
+function updateTrajectoryChart(chartData) {
+    const trajectoryCtx = document.getElementById('trajectoryChart');
+    if (!trajectoryCtx || !window.Chart) return;
+
+    // Destroy existing chart if it exists
+    if (window.trajectoryChart) {
+        window.trajectoryChart.destroy();
+    }
+
+    // Use the latest data points for current performance
+    const latestIndex = chartData.labels.length - 1;
+    const currentData = [
+        chartData.speed_data[latestIndex] || 0,
+        chartData.stamina_data[latestIndex] || 0,
+        chartData.agility_data[latestIndex] || 0,
+        chartData.strength_data[latestIndex] || 0
+    ];
+
+    window.trajectoryChart = new Chart(trajectoryCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Speed', 'Stamina', 'Agility', 'Strength'],
+            datasets: [{
+                label: 'Current Performance',
+                data: currentData,
+                backgroundColor: ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f093fb'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0,0,0,0.1)'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
 }
 
-function generatePerformanceReport() {
-    const reportType = document.querySelector('input[name="reportType"]:checked').value;
-    showNotification(`Generating ${reportType} performance report...`, 'info');
-    
-    // Simulate report generation
-    setTimeout(() => {
-        showNotification(`${reportType.charAt(0).toUpperCase() + reportType.slice(1)} report generated successfully!`, 'success');
-    }, 2000);
+async function showPeakComparison() {
+    try {
+        showNotification('Loading performance insights...', 'info');
+
+        const response = await apiCall('/analytics/insights');
+        if (response && response.insights) {
+            displayInsights(response.insights);
+            showNotification('Performance insights loaded', 'success');
+        }
+    } catch (error) {
+        console.error('Failed to load insights:', error);
+        showNotification('Comparing with your previous peak performance from 2 weeks ago', 'info');
+    }
+}
+
+function displayInsights(insights) {
+    // Update the insights panel with backend-generated insights
+    const insightsGrid = document.querySelector('.insights-grid');
+    if (!insightsGrid) return;
+
+    insightsGrid.innerHTML = insights.map(insight => `
+        <div class="insight-card">
+            <i class="fas fa-${getInsightIcon(insight.type)}"></i>
+            <div>
+                <h4>${insight.title}</h4>
+                <p>${insight.description}</p>
+            </div>
+        </div>
+    `).join('');
+}
+
+function getInsightIcon(type) {
+    switch (type) {
+        case 'success': return 'trophy';
+        case 'improvement': return 'arrow-up';
+        case 'warning': return 'exclamation-triangle';
+        case 'info': return 'info-circle';
+        default: return 'lightbulb';
+    }
+}
+
+async function generatePerformanceReport() {
+    try {
+        const reportType = document.querySelector('input[name="reportType"]:checked').value;
+        showNotification(`Generating ${reportType} performance report...`, 'info');
+
+        const response = await apiCall('/reports/generate', 'POST', {
+            report_type: reportType,
+            sport: 'football'
+        });
+
+        if (response) {
+            updateReportPreview(response);
+            showNotification(`${reportType.charAt(0).toUpperCase() + reportType.slice(1)} report generated successfully!`, 'success');
+        }
+    } catch (error) {
+        console.error('Failed to generate report:', error);
+        showNotification('Failed to generate report. Please try again.', 'error');
+    }
+}
+
+function updateReportPreview(reportData) {
+    const reportPreview = document.querySelector('.report-preview');
+    if (!reportPreview) return;
+
+    const period = reportData.period || 'Recent period';
+    const summary = reportData.summary || {};
+    const metrics = reportData.metrics || {};
+    const recommendations = reportData.recommendations || [];
+
+    reportPreview.innerHTML = `
+        <h3>${reportData.report_type.charAt(0).toUpperCase() + reportData.report_type.slice(1)} Performance Report - ${period}</h3>
+
+        <div class="report-summary">
+            <div class="summary-metric">
+                <h4>Training Sessions</h4>
+                <span class="metric-number">${summary.total_sessions || 0}</span>
+            </div>
+            <div class="summary-metric">
+                <h4>Total Duration</h4>
+                <span class="metric-number">${summary.total_duration || 0} min</span>
+            </div>
+            <div class="summary-metric">
+                <h4>Average Performance</h4>
+                <span class="metric-number">${summary.average_performance || 0}%</span>
+            </div>
+        </div>
+
+        ${metrics && Object.keys(metrics).length > 0 ? `
+        <div class="report-metrics">
+            <h4>Performance Metrics</h4>
+            <div class="metrics-grid">
+                ${metrics.average_speed ? `<div class="metric-item">Average Speed: ${metrics.average_speed} km/h</div>` : ''}
+                ${metrics.average_stamina ? `<div class="metric-item">Average Stamina: ${metrics.average_stamina}%</div>` : ''}
+                ${metrics.average_agility ? `<div class="metric-item">Average Agility: ${metrics.average_agility}s</div>` : ''}
+                ${metrics.average_strength ? `<div class="metric-item">Average Strength: ${metrics.average_strength}kg</div>` : ''}
+            </div>
+        </div>
+        ` : ''}
+
+        <div class="report-recommendations">
+            <h4>AI Training Recommendations</h4>
+            <ul>
+                ${recommendations.map(rec => `<li>${rec}</li>`).join('')}
+            </ul>
+        </div>
+    `;
 }
 
 async function loadPerformanceData() {
