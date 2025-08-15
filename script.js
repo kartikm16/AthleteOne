@@ -544,9 +544,10 @@ async function handlePerformanceSubmission() {
             if (formData.stamina) performanceData.currentMetrics.stamina = formData.stamina;
             if (formData.agility) performanceData.currentMetrics.agility = formData.agility;
             if (formData.strength) performanceData.currentMetrics.strength = formData.strength;
-
-            updateDashboardMetrics();
         }
+
+        // Always update dashboard to show latest data
+        updateDashboardMetrics();
 
         // Clear form
         clearFormFields(selectedSport);
