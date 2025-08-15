@@ -412,6 +412,8 @@ function switchSportForm(sport) {
 // Performance data handling
 async function handlePerformanceSubmission() {
     try {
+        console.log('Form submission started');
+
         const selectedSportElement = document.querySelector('input[name="sport"]:checked');
         if (!selectedSportElement) {
             showNotification('Please select a sport', 'error');
@@ -419,6 +421,7 @@ async function handlePerformanceSubmission() {
         }
 
         const selectedSport = selectedSportElement.value;
+        console.log('Selected sport:', selectedSport);
         let formData = {};
 
         if (selectedSport === 'football') {
