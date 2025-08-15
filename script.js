@@ -211,6 +211,8 @@ function updateDashboardChart(sport) {
     const dashboardCtx = document.getElementById('dashboardChart');
     if (!dashboardCtx) return;
 
+    console.log('Updating dashboard chart for sport:', sport);
+
     // Destroy existing chart if it exists
     if (window.dashboardChart) {
         window.dashboardChart.destroy();
@@ -224,6 +226,7 @@ function updateDashboardChart(sport) {
 
     // Get data for selected sport
     const sportData = getSportPerformanceData(sport);
+    console.log('Sport data:', sportData);
 
     window.dashboardChart = new Chart(dashboardCtx, {
         type: 'bar',
