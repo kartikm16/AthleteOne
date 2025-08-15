@@ -291,63 +291,102 @@ function switchSportForm(sport) {
 
 // Performance data handling
 function handlePerformanceSubmission() {
-    const selectedSport = document.querySelector('input[name="sport"]:checked').value;
-    let formData = {};
+    try {
+        const selectedSportElement = document.querySelector('input[name="sport"]:checked');
+        if (!selectedSportElement) {
+            showNotification('Please select a sport', 'error');
+            return;
+        }
 
-    if (selectedSport === 'football') {
-        formData = {
-            sport: 'football',
-            sessionType: document.getElementById('football-session-type').value,
-            date: document.getElementById('football-session-date').value,
-            duration: document.getElementById('football-duration').value,
-            speed: document.getElementById('football-speed').value,
-            stamina: document.getElementById('football-stamina').value,
-            agility: document.getElementById('football-agility').value,
-            strength: document.getElementById('football-strength').value,
-            goals: document.getElementById('football-goals').value,
-            assists: document.getElementById('football-assists').value,
-            notes: document.getElementById('notes')?.value || ''
-        };
+        const selectedSport = selectedSportElement.value;
+        let formData = {};
 
-        // Update current metrics if provided (for football)
-        if (formData.speed) performanceData.currentMetrics.speed = parseFloat(formData.speed);
-        if (formData.stamina) performanceData.currentMetrics.stamina = parseFloat(formData.stamina);
-        if (formData.agility) performanceData.currentMetrics.agility = parseFloat(formData.agility);
-        if (formData.strength) performanceData.currentMetrics.strength = parseFloat(formData.strength);
-    } else if (selectedSport === 'cricket') {
-        formData = {
-            sport: 'cricket',
-            sessionType: document.getElementById('cricket-session-type').value,
-            date: document.getElementById('cricket-session-date').value,
-            duration: document.getElementById('cricket-duration').value,
-            wickets: document.getElementById('cricket-wickets').value,
-            runs: document.getElementById('cricket-runs').value,
-            notes: document.getElementById('notes')?.value || ''
-        };
+        if (selectedSport === 'football') {
+            const sessionType = document.getElementById('football-session-type');
+            const date = document.getElementById('football-session-date');
+
+            if (!sessionType || !date) {
+                showNotification('Form elements not found. Please refresh the page.', 'error');
+                return;
+            }
+
+            formData = {
+                sport: 'football',
+                sessionType: sessionType.value,
+                date: date.value,
+                duration: document.getElementById('football-duration')?.value || '',
+                speed: document.getElementById('football-speed')?.value || '',
+                stamina: document.getElementById('football-stamina')?.value || '',
+                agility: document.getElementById('football-agility')?.value || '',
+                strength: document.getElementById('football-strength')?.value || '',
+                goals: document.getElementById('football-goals')?.value || '',
+                assists: document.getElementById('football-assists')?.value || '',
+                notes: ''
+            };
+
+            // Update current metrics if provided (for football)
+            if (formData.speed && !isNaN(parseFloat(formData.speed))) {
+                performanceData.currentMetrics.speed = parseFloat(formData.speed);
+            }
+            if (formData.stamina && !isNaN(parseFloat(formData.stamina))) {
+                performanceData.currentMetrics.stamina = parseFloat(formData.stamina);
+            }
+            if (formData.agility && !isNaN(parseFloat(formData.agility))) {
+                performanceData.currentMetrics.agility = parseFloat(formData.agility);
+            }
+            if (formData.strength && !isNaN(parseFloat(formData.strength))) {
+                performanceData.currentMetrics.strength = parseFloat(formData.strength);
+            }
+        } else if (selectedSport === 'cricket') {
+            const sessionType = document.getElementById('cricket-session-type');
+            const date = document.getElementById('cricket-session-date');
+
+            if (!sessionType || !date) {
+                showNotification('Form elements not found. Please refresh the page.', 'error');
+                return;
+            }
+
+            formData = {
+                sport: 'cricket',
+                sessionType: sessionType.value,
+                date: date.value,
+                duration: document.getElementById('cricket-duration')?.value || '',
+                wickets: document.getElementById('cricket-wickets')?.value || '',
+                runs: document.getElementById('cricket-runs')?.value || '',
+                notes: ''
+            };
+        }
+
+        // Validate required fields
+        if (!formData.sessionType || !formData.date) {
+            showNotification('Please fill in all required fields (Session Type and Date)', 'error');
+            return;
+        }
+
+        // Save to performance data
+        performanceData.sessions.push({
+            ...formData,
+            id: Date.now(),
+            timestamp: new Date()
+        });
+
+        // Update dashboard metrics (only for football since cricket doesn't have these metrics)
+        if (selectedSport === 'football') {
+            updateDashboardMetrics();
+        }
+
+        // Clear form
+        clearFormFields(selectedSport);
+
+        showNotification(`${selectedSport.charAt(0).toUpperCase() + selectedSport.slice(1)} performance logged successfully!`, 'success');
+
+        // Save data to localStorage
+        savePerformanceData();
+
+    } catch (error) {
+        console.error('Error submitting performance data:', error);
+        showNotification('An error occurred while saving your data. Please try again.', 'error');
     }
-
-    // Validate required fields
-    if (!formData.sessionType || !formData.date) {
-        showNotification('Please fill in all required fields', 'error');
-        return;
-    }
-
-    // Save to performance data
-    performanceData.sessions.push({
-        ...formData,
-        id: Date.now(),
-        timestamp: new Date()
-    });
-
-    // Update dashboard metrics (only for football since cricket doesn't have these metrics)
-    if (selectedSport === 'football') {
-        updateDashboardMetrics();
-    }
-
-    // Clear form
-    clearFormFields(selectedSport);
-
-    showNotification(`${selectedSport.charAt(0).toUpperCase() + selectedSport.slice(1)} performance logged successfully!`, 'success');
 }
 
 function clearFormFields(sport) {
