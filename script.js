@@ -316,8 +316,8 @@ function getMetricUnit(metric) {
         'Stamina': '%',
         'Agility': 's',
         'Strength': ' kg',
-        'Wickets': '',
-        'Runs': '',
+        'Wickets Taken': '',
+        'Runs Scored': '',
         'Sessions': ''
     };
     return units[metric] || '';
