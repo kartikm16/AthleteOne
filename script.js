@@ -501,14 +501,15 @@ async function handlePerformanceSubmission() {
                     performanceData.sessions.push(response.entry);
 
                     // Update current metrics if it's football data
-                    if (selectedSport === 'football' && response.entry) {
-                        if (response.entry.speed) performanceData.currentMetrics.speed = response.entry.speed;
-                        if (response.entry.stamina) performanceData.currentMetrics.stamina = response.entry.stamina;
-                        if (response.entry.agility) performanceData.currentMetrics.agility = response.entry.agility;
-                        if (response.entry.strength) performanceData.currentMetrics.strength = response.entry.strength;
+            if (selectedSport === 'football' && response.entry) {
+                if (response.entry.speed) performanceData.currentMetrics.speed = response.entry.speed;
+                if (response.entry.stamina) performanceData.currentMetrics.stamina = response.entry.stamina;
+                if (response.entry.agility) performanceData.currentMetrics.agility = response.entry.agility;
+                if (response.entry.strength) performanceData.currentMetrics.strength = response.entry.strength;
+            }
 
-                        updateDashboardMetrics();
-                    }
+            // Always update dashboard to show latest data
+            updateDashboardMetrics();
 
                     // Clear form
                     clearFormFields(selectedSport);
