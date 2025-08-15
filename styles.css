@@ -155,84 +155,64 @@ body {
     opacity: 0.9;
 }
 
-/* Metrics Grid */
-.metrics-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 3rem;
-}
-
-.metric-card {
+/* Dashboard Controls */
+.dashboard-controls {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     border-radius: 16px;
-    padding: 2rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.sport-selector {
     display: flex;
     align-items: center;
     gap: 1rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease;
 }
 
-.metric-card:hover {
-    transform: translateY(-5px);
-}
-
-.metric-icon {
-    font-size: 3rem;
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.speed-card .metric-icon {
-    background: linear-gradient(45deg, #ff6b6b, #ee5a24);
-    color: white;
-}
-
-.stamina-card .metric-icon {
-    background: linear-gradient(45deg, #4ecdc4, #44a08d);
-    color: white;
-}
-
-.agility-card .metric-icon {
-    background: linear-gradient(45deg, #45b7d1, #96c93d);
-    color: white;
-}
-
-.strength-card .metric-icon {
-    background: linear-gradient(45deg, #f093fb, #f5576c);
-    color: white;
-}
-
-.metric-info h3 {
-    font-size: 1.1rem;
-    color: #666;
-    margin-bottom: 0.5rem;
-}
-
-.metric-value {
-    font-size: 2rem;
-    font-weight: bold;
+.sport-selector label {
+    font-weight: 600;
     color: #333;
-    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
 }
 
-.metric-change {
-    font-size: 0.9rem;
-    font-weight: 500;
+.sport-selector select {
+    padding: 0.75rem 1rem;
+    border: 2px solid #e1e8ed;
+    border-radius: 8px;
+    font-size: 1rem;
+    background: white;
+    color: #333;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
 }
 
-.metric-change.positive {
-    color: #27ae60;
+.sport-selector select:focus {
+    outline: none;
+    border-color: #667eea;
 }
 
-.metric-change.negative {
-    color: #e74c3c;
+.no-data-message {
+    text-align: center;
+    padding: 3rem;
+    color: #666;
+}
+
+.no-data-message i {
+    font-size: 3rem;
+    color: #e1e8ed;
+    margin-bottom: 1rem;
+}
+
+.no-data-message h3 {
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.no-data-message p {
+    color: #666;
+    line-height: 1.5;
 }
 
 
