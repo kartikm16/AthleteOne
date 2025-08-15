@@ -144,37 +144,42 @@ function initializeCharts() {
     }
 
 
-    // Trajectory chart
+    // Progress trajectory chart
     const trajectoryCtx = document.getElementById('trajectoryChart');
     if (trajectoryCtx) {
         new Chart(trajectoryCtx, {
-            type: 'radar',
+            type: 'bar',
             data: {
-                labels: ['Speed', 'Stamina', 'Agility', 'Strength', 'Consistency'],
-                datasets: [
-                    {
-                        label: 'Current Performance',
-                        data: [85, 80, 75, 90, 85],
-                        borderColor: '#667eea',
-                        backgroundColor: 'rgba(102, 126, 234, 0.2)',
-                        pointBackgroundColor: '#667eea'
-                    },
-                    {
-                        label: 'Previous Peak',
-                        data: [80, 85, 80, 85, 90],
-                        borderColor: '#e74c3c',
-                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
-                        pointBackgroundColor: '#e74c3c'
-                    }
-                ]
+                labels: ['Speed', 'Stamina', 'Agility', 'Strength'],
+                datasets: [{
+                    label: 'Current Performance',
+                    data: [performanceData.currentMetrics.speed || 0,
+                           performanceData.currentMetrics.stamina || 0,
+                           performanceData.currentMetrics.agility || 0,
+                           performanceData.currentMetrics.strength || 0],
+                    backgroundColor: ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f093fb'],
+                    borderWidth: 0
+                }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
                 scales: {
-                    r: {
+                    y: {
                         beginAtZero: true,
-                        max: 100
+                        grid: {
+                            color: 'rgba(0,0,0,0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
                     }
                 }
             }
