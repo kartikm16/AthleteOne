@@ -13,8 +13,16 @@ let performanceData = {
 // Backend API configuration
 const API_BASE_URL = 'http://localhost:5000/api';
 
+// Global flag to track backend availability
+let isBackendAvailable = false;
+
 // API helper functions
 async function apiCall(endpoint, method = 'GET', data = null) {
+    // If backend is known to be unavailable, throw error immediately
+    if (!isBackendAvailable) {
+        throw new Error('Backend not available');
+    }
+
     try {
         const config = {
             method: method,
@@ -36,6 +44,10 @@ async function apiCall(endpoint, method = 'GET', data = null) {
         return await response.json();
     } catch (error) {
         console.error('API call failed:', error);
+        // Mark backend as unavailable on fetch errors
+        if (error.message.includes('Failed to fetch')) {
+            isBackendAvailable = false;
+        }
         throw error;
     }
 }
