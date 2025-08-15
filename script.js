@@ -1012,20 +1012,30 @@ async function loadPerformanceData() {
 }
 
 async function loadDashboardData() {
-    try {
-        const response = await apiCall('/dashboard/metrics');
-        if (response) {
-            performanceData.currentMetrics = response.current_metrics;
-            updateDashboardMetrics();
+    // Only try backend if it's available
+    if (isBackendAvailable) {
+        try {
+            const response = await apiCall('/dashboard/metrics');
+            if (response) {
+                performanceData.currentMetrics = response.current_metrics;
+                updateDashboardMetrics();
 
-            // Update chart if we have daily metrics
-            if (response.daily_metrics) {
-                updateDashboardChart(response.daily_metrics);
+                // Update chart if we have daily metrics
+                if (response.daily_metrics) {
+                    updateDashboardChart(response.daily_metrics);
+                }
+                return;
             }
+        } catch (error) {
+            console.log('Dashboard data not available from backend');
+            isBackendAvailable = false;
         }
-    } catch (error) {
-        console.error('Failed to load dashboard data:', error);
     }
+
+    // Fallback to existing data and charts
+    updateDashboardMetrics();
+    // Initialize default chart if no backend data
+    initializeDefaultChart();
 }
 
 function updateDashboardChart(dailyMetrics) {
