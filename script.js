@@ -32,23 +32,48 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeNavigation() {
     const navLinks = document.querySelectorAll('.nav-link');
     const sections = document.querySelectorAll('.content-section');
+    const hamburgerMenu = document.getElementById('hamburgerMenu');
+    const navMenu = document.getElementById('navMenu');
 
+    // Navigation link handling
     navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
-            
+
             // Remove active class from all links and sections
             navLinks.forEach(l => l.classList.remove('active'));
             sections.forEach(s => s.classList.remove('active'));
-            
+
             // Add active class to clicked link
             this.classList.add('active');
-            
+
             // Show corresponding section
             const targetSection = this.getAttribute('data-section');
             document.getElementById(targetSection).classList.add('active');
+
+            // Close mobile menu if open
+            if (navMenu && navMenu.classList.contains('active')) {
+                navMenu.classList.remove('active');
+                hamburgerMenu.classList.remove('active');
+            }
         });
     });
+
+    // Hamburger menu handling
+    if (hamburgerMenu && navMenu) {
+        hamburgerMenu.addEventListener('click', function() {
+            this.classList.toggle('active');
+            navMenu.classList.toggle('active');
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!hamburgerMenu.contains(e.target) && !navMenu.contains(e.target)) {
+                navMenu.classList.remove('active');
+                hamburgerMenu.classList.remove('active');
+            }
+        });
+    }
 }
 
 // Chart initialization
