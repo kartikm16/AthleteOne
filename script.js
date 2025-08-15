@@ -898,18 +898,25 @@ function updateTrajectoryChart(chartData) {
 }
 
 async function showPeakComparison() {
-    try {
-        showNotification('Loading performance insights...', 'info');
+    if (isBackendAvailable) {
+        try {
+            showNotification('Loading performance insights...', 'info');
 
-        const response = await apiCall('/analytics/insights');
-        if (response && response.insights) {
-            displayInsights(response.insights);
-            showNotification('Performance insights loaded', 'success');
+            const response = await apiCall('/analytics/insights');
+            if (response && response.insights) {
+                displayInsights(response.insights);
+                showNotification('Performance insights loaded', 'success');
+                return;
+            }
+        } catch (error) {
+            console.log('Insights not available from backend');
+            isBackendAvailable = false;
         }
-    } catch (error) {
-        console.error('Failed to load insights:', error);
-        showNotification('Comparing with your previous peak performance from 2 weeks ago', 'info');
     }
+
+    // Fallback to local insights
+    showNotification('Comparing with your previous peak performance from 2 weeks ago', 'info');
+    displayLocalInsights();
 }
 
 function displayInsights(insights) {
