@@ -962,45 +962,52 @@ function updateReportPreview(reportData) {
 }
 
 async function loadPerformanceData() {
-    try {
-        // Try to load from backend first
-        const response = await apiCall('/performance?days=30');
-        if (response && response.entries) {
-            performanceData.sessions = response.entries;
+    // Only try backend if it's available
+    if (isBackendAvailable) {
+        try {
+            const response = await apiCall('/performance?days=30');
+            if (response && response.entries) {
+                performanceData.sessions = response.entries;
 
-            // Update current metrics from latest football entry
-            const latestFootballEntry = response.entries.find(entry =>
-                entry.sport === 'football' &&
-                (entry.speed || entry.stamina || entry.agility || entry.strength)
-            );
+                // Update current metrics from latest football entry
+                const latestFootballEntry = response.entries.find(entry =>
+                    entry.sport === 'football' &&
+                    (entry.speed || entry.stamina || entry.agility || entry.strength)
+                );
 
-            if (latestFootballEntry) {
-                performanceData.currentMetrics = {
-                    speed: latestFootballEntry.speed || 0,
-                    stamina: latestFootballEntry.stamina || 0,
-                    agility: latestFootballEntry.agility || 0,
-                    strength: latestFootballEntry.strength || 0
-                };
-            }
+                if (latestFootballEntry) {
+                    performanceData.currentMetrics = {
+                        speed: latestFootballEntry.speed || 0,
+                        stamina: latestFootballEntry.stamina || 0,
+                        agility: latestFootballEntry.agility || 0,
+                        strength: latestFootballEntry.strength || 0
+                    };
+                }
 
-            updateDashboardMetrics();
-            console.log('Loaded performance data from backend');
-        }
-    } catch (error) {
-        console.error('Failed to load from backend, trying localStorage:', error);
-
-        // Fallback to localStorage
-        const savedData = localStorage.getItem('athleteTrackerData');
-        if (savedData) {
-            try {
-                const parsed = JSON.parse(savedData);
-                performanceData = { ...performanceData, ...parsed };
                 updateDashboardMetrics();
-                console.log('Loaded performance data from localStorage');
-            } catch (e) {
-                console.error('Error loading saved data:', e);
+                console.log('Loaded performance data from backend');
+                return;
             }
+        } catch (error) {
+            console.log('Backend unavailable, falling back to localStorage');
+            isBackendAvailable = false;
         }
+    }
+
+    // Fallback to localStorage or use existing data
+    const savedData = localStorage.getItem('athleteTrackerData');
+    if (savedData) {
+        try {
+            const parsed = JSON.parse(savedData);
+            performanceData = { ...performanceData, ...parsed };
+            updateDashboardMetrics();
+            console.log('Loaded performance data from localStorage');
+        } catch (e) {
+            console.error('Error loading saved data:', e);
+        }
+    } else {
+        console.log('No saved data found, using default values');
+        updateDashboardMetrics();
     }
 }
 
