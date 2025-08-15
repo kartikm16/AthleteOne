@@ -973,55 +973,118 @@ function updateReportPreview(reportData) {
 
 function generateLocalReport(reportType) {
     const sessions = performanceData.sessions || [];
-    const footballSessions = sessions.filter(s => s.sport === 'football');
 
-    const totalSessions = footballSessions.length;
-    const totalDuration = footballSessions.reduce((sum, s) => sum + (s.duration || 0), 0);
+    // Filter sessions based on report type timeframe
+    const now = new Date();
+    const daysBack = reportType === 'weekly' ? 7 : reportType === 'monthly' ? 30 : 365;
+    const cutoffDate = new Date(now.getTime() - (daysBack * 24 * 60 * 60 * 1000));
 
-    // Calculate averages from local data
-    const speeds = footballSessions.map(s => s.speed).filter(s => s);
-    const staminas = footballSessions.map(s => s.stamina).filter(s => s);
-    const agilities = footballSessions.map(s => s.agility).filter(s => s);
-    const strengths = footballSessions.map(s => s.strength).filter(s => s);
+    const recentSessions = sessions.filter(session => {
+        const sessionDate = new Date(session.date || session.created_at);
+        return sessionDate >= cutoffDate;
+    });
+
+    const footballSessions = recentSessions.filter(s => s.sport === 'football');
+    const cricketSessions = recentSessions.filter(s => s.sport === 'cricket');
+
+    const totalSessions = recentSessions.length;
+    const totalDuration = recentSessions.reduce((sum, s) => sum + (parseInt(s.duration) || 0), 0);
+
+    // Calculate football metrics
+    const speeds = footballSessions.map(s => parseFloat(s.speed)).filter(s => !isNaN(s));
+    const staminas = footballSessions.map(s => parseFloat(s.stamina)).filter(s => !isNaN(s));
+    const agilities = footballSessions.map(s => parseFloat(s.agility)).filter(s => !isNaN(s));
+    const strengths = footballSessions.map(s => parseFloat(s.strength)).filter(s => !isNaN(s));
+
+    // Calculate cricket metrics
+    const wickets = cricketSessions.map(s => parseInt(s.wickets)).filter(w => !isNaN(w));
+    const runs = cricketSessions.map(s => parseInt(s.runs)).filter(r => !isNaN(r));
 
     const avgSpeed = speeds.length ? (speeds.reduce((a, b) => a + b) / speeds.length).toFixed(1) : 0;
     const avgStamina = staminas.length ? (staminas.reduce((a, b) => a + b) / staminas.length).toFixed(1) : 0;
     const avgAgility = agilities.length ? (agilities.reduce((a, b) => a + b) / agilities.length).toFixed(1) : 0;
     const avgStrength = strengths.length ? (strengths.reduce((a, b) => a + b) / strengths.length).toFixed(1) : 0;
 
-    const avgPerformance = totalSessions > 0 ?
-        Math.round((parseFloat(avgSpeed) + parseFloat(avgStamina) + (100 - parseFloat(avgAgility)) + (parseFloat(avgStrength) / 2)) / 4) : 0;
+    const totalWickets = wickets.length ? wickets.reduce((a, b) => a + b, 0) : 0;
+    const totalRuns = runs.length ? runs.reduce((a, b) => a + b, 0) : 0;
 
+    // Calculate average performance based on available data
+    let avgPerformance = 0;
+    if (footballSessions.length > 0) {
+        const performanceFactors = [];
+        if (speeds.length) performanceFactors.push(Math.min(parseFloat(avgSpeed) / 30 * 100, 100));
+        if (staminas.length) performanceFactors.push(parseFloat(avgStamina));
+        if (agilities.length) performanceFactors.push(Math.max(0, 100 - (parseFloat(avgAgility) - 5) * 10));
+        if (strengths.length) performanceFactors.push(Math.min(parseFloat(avgStrength) / 150 * 100, 100));
+
+        avgPerformance = performanceFactors.length ?
+            Math.round(performanceFactors.reduce((a, b) => a + b) / performanceFactors.length) : 0;
+    }
+
+    // Generate recommendations based on actual data
     const recommendations = [];
-    if (totalSessions < 5) {
-        recommendations.push('Log more training sessions to get better performance insights');
+    if (totalSessions === 0) {
+        recommendations.push('Start logging your training sessions to track your progress');
+    } else {
+        if (totalSessions < 3) {
+            recommendations.push('Try to maintain a consistent training schedule with at least 3 sessions per week');
+        }
+        if (footballSessions.length > 0) {
+            if (parseFloat(avgSpeed) > 0 && parseFloat(avgSpeed) < 20) {
+                recommendations.push('Focus on speed training with sprint intervals to improve your pace');
+            }
+            if (parseFloat(avgStamina) > 0 && parseFloat(avgStamina) < 75) {
+                recommendations.push('Increase cardiovascular training to boost your endurance levels');
+            }
+            if (parseFloat(avgAgility) > 8) {
+                recommendations.push('Work on agility drills to improve your reaction time and movement');
+            }
+        }
+        if (cricketSessions.length > 0) {
+            if (totalWickets === 0) {
+                recommendations.push('Focus on bowling techniques to improve your wicket-taking ability');
+            }
+            if (totalRuns < 50 && cricketSessions.length > 1) {
+                recommendations.push('Practice batting techniques to increase your run-scoring consistency');
+            }
+        }
+        if (recommendations.length === 0) {
+            recommendations.push('Excellent progress! Keep maintaining your current training routine and gradually increase intensity');
+        }
     }
-    if (parseFloat(avgSpeed) < 20) {
-        recommendations.push('Consider adding speed training to your routine');
+
+    const metrics = {};
+    if (footballSessions.length > 0) {
+        if (avgSpeed > 0) metrics.average_speed = avgSpeed;
+        if (avgStamina > 0) metrics.average_stamina = avgStamina;
+        if (avgAgility > 0) metrics.average_agility = avgAgility;
+        if (avgStrength > 0) metrics.average_strength = avgStrength;
     }
-    if (parseFloat(avgStamina) < 75) {
-        recommendations.push('Focus on cardiovascular training to improve endurance');
-    }
-    if (!recommendations.length) {
-        recommendations.push('Keep up the good work! Your performance metrics are looking good.');
+    if (cricketSessions.length > 0) {
+        if (totalWickets > 0) metrics.total_wickets = totalWickets;
+        if (totalRuns > 0) metrics.total_runs = totalRuns;
     }
 
     return {
         report_type: reportType,
-        period: `Last ${reportType === 'weekly' ? '7' : '30'} days`,
+        period: `${formatDate(cutoffDate)} to ${formatDate(now)}`,
         summary: {
             total_sessions: totalSessions,
             total_duration: totalDuration,
             average_performance: avgPerformance
         },
-        metrics: {
-            average_speed: avgSpeed,
-            average_stamina: avgStamina,
-            average_agility: avgAgility,
-            average_strength: avgStrength
-        },
-        recommendations: recommendations
+        metrics: metrics,
+        recommendations: recommendations,
+        sessions: recentSessions.sort((a, b) => new Date(b.date || b.created_at) - new Date(a.date || a.created_at))
     };
+}
+
+function formatDate(date) {
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
 }
 
 async function loadPerformanceData() {
