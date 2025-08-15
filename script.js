@@ -76,14 +76,21 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 async function checkBackendConnection() {
     try {
+        // First set backend as potentially available
+        isBackendAvailable = true;
+
         const response = await apiCall('/health');
         if (response && response.status === 'healthy') {
+            isBackendAvailable = true;
             showNotification('Connected to backend successfully', 'success');
             console.log('Backend connection established:', response.message);
+            return true;
         }
     } catch (error) {
-        console.error('Backend connection failed:', error);
-        showNotification('Backend not available - using local storage mode', 'warning');
+        isBackendAvailable = false;
+        console.log('Backend not available, using localStorage mode');
+        // Don't show error notification on initial load, just log it
+        return false;
     }
 }
 
