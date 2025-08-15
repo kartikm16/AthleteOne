@@ -385,29 +385,8 @@ function initializeFormHandlers() {
     }
 }
 
-// Analytics controls
-function initializeAnalyticsControls() {
-    // Time range buttons
-    const timeButtons = document.querySelectorAll('.time-btn');
-    timeButtons.forEach(btn => {
-        btn.addEventListener('click', function() {
-            timeButtons.forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            
-            const range = this.getAttribute('data-range');
-            updateAnalyticsCharts(range);
-        });
-    });
-
-    // Compare with peak button
-    const compareBtn = document.getElementById('compareWithPeak');
-    if (compareBtn) {
-        compareBtn.addEventListener('click', function() {
-            showPeakComparison();
-        });
-    }
-
-    // Report generation
+// Report generation
+function initializeReportGeneration() {
     const generateReportBtn = document.getElementById('generateReport');
     if (generateReportBtn) {
         generateReportBtn.addEventListener('click', function() {
