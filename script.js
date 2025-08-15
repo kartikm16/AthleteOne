@@ -901,6 +901,31 @@ function updateReportPreview(reportData) {
     const summary = reportData.summary || {};
     const metrics = reportData.metrics || {};
     const recommendations = reportData.recommendations || [];
+    const sessions = reportData.sessions || [];
+
+    let sessionsHTML = '';
+    if (sessions.length > 0) {
+        sessionsHTML = `
+            <div class="report-sessions">
+                <h4>Recent Training Sessions</h4>
+                <div class="sessions-list">
+                    ${sessions.slice(0, 5).map(session => `
+                        <div class="session-item">
+                            <div class="session-date">${new Date(session.date).toLocaleDateString()}</div>
+                            <div class="session-type">${session.session_type} - ${session.sport}</div>
+                            ${session.duration ? `<div class="session-duration">${session.duration} min</div>` : ''}
+                            <div class="session-metrics">
+                                ${session.speed ? `Speed: ${session.speed} km/h` : ''}
+                                ${session.stamina ? `${session.speed ? ', ' : ''}Stamina: ${session.stamina}%` : ''}
+                                ${session.wickets !== undefined ? `Wickets: ${session.wickets}` : ''}
+                                ${session.runs !== undefined ? `${session.wickets !== undefined ? ', ' : ''}Runs: ${session.runs}` : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
 
     reportPreview.innerHTML = `
         <h3>${reportData.report_type.charAt(0).toUpperCase() + reportData.report_type.slice(1)} Performance Report - ${period}</h3>
@@ -923,17 +948,21 @@ function updateReportPreview(reportData) {
         ${metrics && Object.keys(metrics).length > 0 ? `
         <div class="report-metrics">
             <h4>Performance Metrics</h4>
-            <div class="metrics-grid">
-                ${metrics.average_speed ? `<div class="metric-item">Average Speed: ${metrics.average_speed} km/h</div>` : ''}
-                ${metrics.average_stamina ? `<div class="metric-item">Average Stamina: ${metrics.average_stamina}%</div>` : ''}
-                ${metrics.average_agility ? `<div class="metric-item">Average Agility: ${metrics.average_agility}s</div>` : ''}
-                ${metrics.average_strength ? `<div class="metric-item">Average Strength: ${metrics.average_strength}kg</div>` : ''}
+            <div class="metrics-display">
+                ${metrics.average_speed ? `<div class="metric-item"><span class="metric-label">Average Speed:</span> <span class="metric-value">${metrics.average_speed} km/h</span></div>` : ''}
+                ${metrics.average_stamina ? `<div class="metric-item"><span class="metric-label">Average Stamina:</span> <span class="metric-value">${metrics.average_stamina}%</span></div>` : ''}
+                ${metrics.average_agility ? `<div class="metric-item"><span class="metric-label">Average Agility:</span> <span class="metric-value">${metrics.average_agility}s</span></div>` : ''}
+                ${metrics.average_strength ? `<div class="metric-item"><span class="metric-label">Average Strength:</span> <span class="metric-value">${metrics.average_strength}kg</span></div>` : ''}
+                ${metrics.total_wickets ? `<div class="metric-item"><span class="metric-label">Total Wickets:</span> <span class="metric-value">${metrics.total_wickets}</span></div>` : ''}
+                ${metrics.total_runs ? `<div class="metric-item"><span class="metric-label">Total Runs:</span> <span class="metric-value">${metrics.total_runs}</span></div>` : ''}
             </div>
         </div>
         ` : ''}
 
+        ${sessionsHTML}
+
         <div class="report-recommendations">
-            <h4>AI Training Recommendations</h4>
+            <h4>Training Recommendations</h4>
             <ul>
                 ${recommendations.map(rec => `<li>${rec}</li>`).join('')}
             </ul>
