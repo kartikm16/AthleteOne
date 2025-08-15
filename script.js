@@ -588,18 +588,9 @@ function clearFormFields(sport) {
 }
 
 function updateDashboardMetrics() {
-    const metrics = performanceData.currentMetrics;
-    
-    // Update metric cards
-    const speedValue = document.querySelector('.speed-card .metric-value');
-    const staminaValue = document.querySelector('.stamina-card .metric-value');
-    const agilityValue = document.querySelector('.agility-card .metric-value');
-    const strengthValue = document.querySelector('.strength-card .metric-value');
-
-    if (speedValue) speedValue.textContent = `${metrics.speed} km/h`;
-    if (staminaValue) staminaValue.textContent = `${metrics.stamina}%`;
-    if (agilityValue) agilityValue.textContent = `${metrics.agility}s`;
-    if (strengthValue) strengthValue.textContent = `${metrics.strength}kg`;
+    // Update the dashboard chart with current metrics
+    const selectedSport = document.getElementById('dashboardSportSelect')?.value || 'football';
+    updateDashboardChart(selectedSport);
 }
 
 // Video upload handling
