@@ -439,33 +439,71 @@ async function handlePerformanceSubmission() {
             return;
         }
 
-        // Submit to backend
-        showNotification('Submitting performance data...', 'info');
+        // Try to submit to backend if available, otherwise use localStorage
+        if (isBackendAvailable) {
+            try {
+                showNotification('Submitting performance data...', 'info');
 
-        const response = await apiCall('/performance', 'POST', formData);
+                const response = await apiCall('/performance', 'POST', formData);
 
-        if (response.entry) {
-            // Update local data
-            performanceData.sessions.push(response.entry);
+                if (response.entry) {
+                    // Update local data
+                    performanceData.sessions.push(response.entry);
 
-            // Update current metrics if it's football data
-            if (selectedSport === 'football' && response.entry) {
-                if (response.entry.speed) performanceData.currentMetrics.speed = response.entry.speed;
-                if (response.entry.stamina) performanceData.currentMetrics.stamina = response.entry.stamina;
-                if (response.entry.agility) performanceData.currentMetrics.agility = response.entry.agility;
-                if (response.entry.strength) performanceData.currentMetrics.strength = response.entry.strength;
+                    // Update current metrics if it's football data
+                    if (selectedSport === 'football' && response.entry) {
+                        if (response.entry.speed) performanceData.currentMetrics.speed = response.entry.speed;
+                        if (response.entry.stamina) performanceData.currentMetrics.stamina = response.entry.stamina;
+                        if (response.entry.agility) performanceData.currentMetrics.agility = response.entry.agility;
+                        if (response.entry.strength) performanceData.currentMetrics.strength = response.entry.strength;
 
-                updateDashboardMetrics();
+                        updateDashboardMetrics();
+                    }
+
+                    // Clear form
+                    clearFormFields(selectedSport);
+
+                    showNotification(`${selectedSport.charAt(0).toUpperCase() + selectedSport.slice(1)} performance logged successfully!`, 'success');
+
+                    // Refresh dashboard data
+                    await loadDashboardData();
+
+                    // Save to localStorage as backup
+                    savePerformanceData();
+                    return;
+                }
+            } catch (error) {
+                console.log('Backend submission failed, using localStorage');
+                isBackendAvailable = false;
             }
-
-            // Clear form
-            clearFormFields(selectedSport);
-
-            showNotification(`${selectedSport.charAt(0).toUpperCase() + selectedSport.slice(1)} performance logged successfully!`, 'success');
-
-            // Refresh dashboard data
-            await loadDashboardData();
         }
+
+        // Fallback to localStorage storage
+        const localEntry = {
+            ...formData,
+            id: Date.now(),
+            created_at: new Date().toISOString()
+        };
+
+        performanceData.sessions.push(localEntry);
+
+        // Update current metrics if it's football data
+        if (selectedSport === 'football') {
+            if (formData.speed) performanceData.currentMetrics.speed = formData.speed;
+            if (formData.stamina) performanceData.currentMetrics.stamina = formData.stamina;
+            if (formData.agility) performanceData.currentMetrics.agility = formData.agility;
+            if (formData.strength) performanceData.currentMetrics.strength = formData.strength;
+
+            updateDashboardMetrics();
+        }
+
+        // Clear form
+        clearFormFields(selectedSport);
+
+        showNotification(`${selectedSport.charAt(0).toUpperCase() + selectedSport.slice(1)} performance logged successfully! (Saved locally)`, 'success');
+
+        // Save to localStorage
+        savePerformanceData();
 
     } catch (error) {
         console.error('Error submitting performance data:', error);
