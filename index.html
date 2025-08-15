@@ -42,56 +42,20 @@
                 <p>Track your athletic progress and performance metrics</p>
             </div>
 
-            <!-- Performance Overview Cards -->
-            <div class="metrics-grid">
-                <div class="metric-card speed-card">
-                    <div class="metric-icon">
-                        <i class="fas fa-bolt"></i>
-                    </div>
-                    <div class="metric-info">
-                        <h3>Speed</h3>
-                        <div class="metric-value">0 km/h</div>
-                        <div class="metric-change">No data</div>
-                    </div>
-                </div>
-
-                <div class="metric-card stamina-card">
-                    <div class="metric-icon">
-                        <i class="fas fa-heart"></i>
-                    </div>
-                    <div class="metric-info">
-                        <h3>Stamina</h3>
-                        <div class="metric-value">0%</div>
-                        <div class="metric-change">No data</div>
-                    </div>
-                </div>
-
-                <div class="metric-card agility-card">
-                    <div class="metric-icon">
-                        <i class="fas fa-exchange-alt"></i>
-                    </div>
-                    <div class="metric-info">
-                        <h3>Agility</h3>
-                        <div class="metric-value">0s</div>
-                        <div class="metric-change">No data</div>
-                    </div>
-                </div>
-
-                <div class="metric-card strength-card">
-                    <div class="metric-icon">
-                        <i class="fas fa-dumbbell"></i>
-                    </div>
-                    <div class="metric-info">
-                        <h3>Strength</h3>
-                        <div class="metric-value">0kg</div>
-                        <div class="metric-change">No data</div>
-                    </div>
+            <!-- Sport Selection and Performance Chart -->
+            <div class="dashboard-controls">
+                <div class="sport-selector">
+                    <label for="dashboardSportSelect">Select Sport:</label>
+                    <select id="dashboardSportSelect">
+                        <option value="football">Football</option>
+                        <option value="cricket">Cricket</option>
+                    </select>
                 </div>
             </div>
 
             <!-- Performance Graph -->
             <div class="dashboard-chart">
-                <h3>Performance Overview (Last 7 Days)</h3>
+                <h3 id="chartTitle">Football Performance Metrics</h3>
                 <canvas id="dashboardChart"></canvas>
             </div>
 
