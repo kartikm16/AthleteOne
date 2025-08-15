@@ -946,23 +946,31 @@ function getInsightIcon(type) {
 }
 
 async function generatePerformanceReport() {
-    try {
-        const reportType = document.querySelector('input[name="reportType"]:checked').value;
-        showNotification(`Generating ${reportType} performance report...`, 'info');
+    const reportType = document.querySelector('input[name="reportType"]:checked').value;
+    showNotification(`Generating ${reportType} performance report...`, 'info');
 
-        const response = await apiCall('/reports/generate', 'POST', {
-            report_type: reportType,
-            sport: 'football'
-        });
+    if (isBackendAvailable) {
+        try {
+            const response = await apiCall('/reports/generate', 'POST', {
+                report_type: reportType,
+                sport: 'football'
+            });
 
-        if (response) {
-            updateReportPreview(response);
-            showNotification(`${reportType.charAt(0).toUpperCase() + reportType.slice(1)} report generated successfully!`, 'success');
+            if (response) {
+                updateReportPreview(response);
+                showNotification(`${reportType.charAt(0).toUpperCase() + reportType.slice(1)} report generated successfully!`, 'success');
+                return;
+            }
+        } catch (error) {
+            console.log('Report generation not available from backend');
+            isBackendAvailable = false;
         }
-    } catch (error) {
-        console.error('Failed to generate report:', error);
-        showNotification('Failed to generate report. Please try again.', 'error');
     }
+
+    // Fallback to local report generation
+    const localReport = generateLocalReport(reportType);
+    updateReportPreview(localReport);
+    showNotification(`${reportType.charAt(0).toUpperCase() + reportType.slice(1)} report generated successfully! (Local data)`, 'success');
 }
 
 function updateReportPreview(reportData) {
