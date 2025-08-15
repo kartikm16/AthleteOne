@@ -339,11 +339,9 @@ function initializeFormHandlers() {
 
     // Sport selection handling
     const sportOptions = document.querySelectorAll('input[name="sport"]');
-    console.log('Found sport options:', sportOptions.length);
 
     sportOptions.forEach(option => {
         option.addEventListener('change', function() {
-            console.log('Sport option changed to:', this.value);
             switchSportForm(this.value);
         });
     });
