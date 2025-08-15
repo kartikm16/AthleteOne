@@ -297,13 +297,12 @@ function getSportPerformanceData(sport) {
         return data;
     } else if (sport === 'cricket') {
         const data = {
-            labels: ['Wickets', 'Runs', 'Sessions'],
+            labels: ['Wickets Taken', 'Runs Scored'],
             values: [
                 latestEntry?.wickets || 0,
-                latestEntry?.runs || 0,
-                performanceData.sessions.filter(s => s.sport === 'cricket').length
+                latestEntry?.runs || 0
             ],
-            colors: ['#27ae60', '#f39c12', '#9b59b6']
+            colors: ['#27ae60', '#f39c12']
         };
         return data;
     }
