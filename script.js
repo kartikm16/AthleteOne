@@ -477,10 +477,14 @@ async function handlePerformanceSubmission() {
 
             // Convert empty strings to null for numeric fields
             ['duration', 'wickets', 'runs'].forEach(field => {
-                if (formData[field] === '' || formData[field] === '0') {
+                if (formData[field] === '' || formData[field] === null) {
                     formData[field] = null;
                 } else if (formData[field] !== null) {
-                    formData[field] = parseInt(formData[field]);
+                    if (field === 'duration') {
+                        formData[field] = parseInt(formData[field]);
+                    } else {
+                        formData[field] = parseInt(formData[field]);
+                    }
                 }
             });
         }
