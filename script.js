@@ -1025,6 +1025,14 @@ function generateLocalReport(reportType) {
 
         avgPerformance = performanceFactors.length ?
             Math.round(performanceFactors.reduce((a, b) => a + b) / performanceFactors.length) : 0;
+    } else if (cricketSessions.length > 0) {
+        // Cricket performance calculation based on wickets and runs
+        const cricketPerformanceFactors = [];
+        if (totalWickets > 0) cricketPerformanceFactors.push(Math.min(totalWickets * 10, 100)); // 10 points per wicket
+        if (totalRuns > 0) cricketPerformanceFactors.push(Math.min(totalRuns / 2, 100)); // 1 point per 2 runs, max 100
+
+        avgPerformance = cricketPerformanceFactors.length ?
+            Math.round(cricketPerformanceFactors.reduce((a, b) => a + b) / cricketPerformanceFactors.length) : 0;
     }
 
     // Generate recommendations based on actual data
