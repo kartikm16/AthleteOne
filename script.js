@@ -1055,11 +1055,18 @@ function generateLocalReport(reportType) {
             }
         }
         if (cricketSessions.length > 0) {
-            if (totalWickets === 0) {
+            if (totalWickets === 0 && cricketSessions.length > 1) {
                 recommendations.push('Focus on bowling techniques to improve your wicket-taking ability');
+            } else if (totalWickets > 0 && totalWickets < cricketSessions.length) {
+                recommendations.push('Good bowling progress! Try to aim for at least 1 wicket per session');
             }
-            if (totalRuns < 50 && cricketSessions.length > 1) {
-                recommendations.push('Practice batting techniques to increase your run-scoring consistency');
+
+            if (totalRuns === 0 && cricketSessions.length > 1) {
+                recommendations.push('Practice batting techniques to start scoring runs consistently');
+            } else if (totalRuns > 0 && totalRuns < 30 * cricketSessions.length) {
+                recommendations.push('Improve batting skills to aim for 30+ runs per session on average');
+            } else if (totalRuns >= 30 * cricketSessions.length) {
+                recommendations.push('Excellent batting performance! Keep up the consistent scoring');
             }
         }
         if (recommendations.length === 0) {
