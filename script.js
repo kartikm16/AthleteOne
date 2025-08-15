@@ -10,6 +10,36 @@ let performanceData = {
     historicalData: generateSampleData()
 };
 
+// Backend API configuration
+const API_BASE_URL = 'http://localhost:5000/api';
+
+// API helper functions
+async function apiCall(endpoint, method = 'GET', data = null) {
+    try {
+        const config = {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        };
+
+        if (data) {
+            config.body = JSON.stringify(data);
+        }
+
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('API call failed:', error);
+        throw error;
+    }
+}
+
 // NGO Help Centre data
 let ngoData = {
     ngos: generateNGOData(),
