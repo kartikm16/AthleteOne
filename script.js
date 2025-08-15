@@ -1021,6 +1021,133 @@ function updateReportPreview(reportData) {
     `;
 }
 
+function updateTrajectoryChartLocal() {
+    const trajectoryCtx = document.getElementById('trajectoryChart');
+    if (!trajectoryCtx || !window.Chart) return;
+
+    // Destroy existing chart if it exists
+    if (window.trajectoryChart) {
+        window.trajectoryChart.destroy();
+    }
+
+    const currentData = [
+        performanceData.currentMetrics.speed || 0,
+        performanceData.currentMetrics.stamina || 0,
+        performanceData.currentMetrics.agility || 0,
+        performanceData.currentMetrics.strength || 0
+    ];
+
+    window.trajectoryChart = new Chart(trajectoryCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Speed', 'Stamina', 'Agility', 'Strength'],
+            datasets: [{
+                label: 'Current Performance',
+                data: currentData,
+                backgroundColor: ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f093fb'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0,0,0,0.1)'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+}
+
+function displayLocalInsights() {
+    const localInsights = [
+        {
+            type: 'info',
+            title: 'Performance Overview',
+            description: 'Your current performance metrics are being tracked locally. Connect to the backend for advanced AI insights.'
+        },
+        {
+            type: 'improvement',
+            title: 'Training Consistency',
+            description: 'Keep logging your training sessions regularly to build a comprehensive performance history.'
+        },
+        {
+            type: 'success',
+            title: 'Data Tracking',
+            description: 'Your performance data is being saved locally and will sync when the backend becomes available.'
+        }
+    ];
+
+    displayInsights(localInsights);
+}
+
+function generateLocalReport(reportType) {
+    const sessions = performanceData.sessions || [];
+    const footballSessions = sessions.filter(s => s.sport === 'football');
+
+    const totalSessions = footballSessions.length;
+    const totalDuration = footballSessions.reduce((sum, s) => sum + (s.duration || 0), 0);
+
+    // Calculate averages from local data
+    const speeds = footballSessions.map(s => s.speed).filter(s => s);
+    const staminas = footballSessions.map(s => s.stamina).filter(s => s);
+    const agilities = footballSessions.map(s => s.agility).filter(s => s);
+    const strengths = footballSessions.map(s => s.strength).filter(s => s);
+
+    const avgSpeed = speeds.length ? (speeds.reduce((a, b) => a + b) / speeds.length).toFixed(1) : 0;
+    const avgStamina = staminas.length ? (staminas.reduce((a, b) => a + b) / staminas.length).toFixed(1) : 0;
+    const avgAgility = agilities.length ? (agilities.reduce((a, b) => a + b) / agilities.length).toFixed(1) : 0;
+    const avgStrength = strengths.length ? (strengths.reduce((a, b) => a + b) / strengths.length).toFixed(1) : 0;
+
+    const avgPerformance = totalSessions > 0 ?
+        Math.round((parseFloat(avgSpeed) + parseFloat(avgStamina) + (100 - parseFloat(avgAgility)) + (parseFloat(avgStrength) / 2)) / 4) : 0;
+
+    const recommendations = [];
+    if (totalSessions < 5) {
+        recommendations.push('Log more training sessions to get better performance insights');
+    }
+    if (parseFloat(avgSpeed) < 20) {
+        recommendations.push('Consider adding speed training to your routine');
+    }
+    if (parseFloat(avgStamina) < 75) {
+        recommendations.push('Focus on cardiovascular training to improve endurance');
+    }
+    if (!recommendations.length) {
+        recommendations.push('Keep up the good work! Your performance metrics are looking good.');
+    }
+
+    return {
+        report_type: reportType,
+        period: `Last ${reportType === 'weekly' ? '7' : '30'} days`,
+        summary: {
+            total_sessions: totalSessions,
+            total_duration: totalDuration,
+            average_performance: avgPerformance
+        },
+        metrics: {
+            average_speed: avgSpeed,
+            average_stamina: avgStamina,
+            average_agility: avgAgility,
+            average_strength: avgStrength
+        },
+        recommendations: recommendations
+    };
+}
+
 async function loadPerformanceData() {
     // Only try backend if it's available
     if (isBackendAvailable) {
