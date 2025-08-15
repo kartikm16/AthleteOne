@@ -66,7 +66,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         initializeNavigation();
         initializeCharts();
         initializeFormHandlers();
-        initializeAnalyticsControls();
         initializeNGOHelp();
 
         // Check backend connectivity and load data
