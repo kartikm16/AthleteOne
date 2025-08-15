@@ -82,15 +82,46 @@ async function checkBackendConnection() {
         const response = await apiCall('/health');
         if (response && response.status === 'healthy') {
             isBackendAvailable = true;
-            showNotification('Connected to backend successfully', 'success');
+            showConnectionStatus(true);
             console.log('Backend connection established:', response.message);
             return true;
         }
     } catch (error) {
         isBackendAvailable = false;
+        showConnectionStatus(false);
         console.log('Backend not available, using localStorage mode');
-        // Don't show error notification on initial load, just log it
         return false;
+    }
+}
+
+function showConnectionStatus(connected) {
+    // Remove any existing status indicator
+    const existingStatus = document.querySelector('.connection-status');
+    if (existingStatus) {
+        existingStatus.remove();
+    }
+
+    // Create status indicator
+    const statusDiv = document.createElement('div');
+    statusDiv.className = 'connection-status';
+    statusDiv.innerHTML = `
+        <i class="fas fa-${connected ? 'wifi' : 'wifi-slash'}"></i>
+        <span>${connected ? 'Backend Connected' : 'Local Mode'}</span>
+    `;
+
+    // Add to navigation
+    const navContainer = document.querySelector('.nav-container');
+    if (navContainer) {
+        navContainer.appendChild(statusDiv);
+    }
+
+    // Auto-hide success status after 3 seconds
+    if (connected) {
+        setTimeout(() => {
+            if (statusDiv.parentElement) {
+                statusDiv.remove();
+            }
+        }, 3000);
     }
 }
 
