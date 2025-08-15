@@ -190,113 +190,138 @@ function initializeNavigation() {
 
 // Chart initialization
 function initializeCharts() {
-    // Dashboard performance chart
-    const dashboardCtx = document.getElementById('dashboardChart');
-    if (dashboardCtx) {
-        new Chart(dashboardCtx, {
-            type: 'line',
-            data: {
-                labels: getLast7Days(),
-                datasets: [
-                    {
-                        label: 'Speed (km/h)',
-                        data: getLastNDays(performanceData.historicalData.speed, 7),
-                        borderColor: '#ff6b6b',
-                        backgroundColor: 'rgba(255, 107, 107, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    },
-                    {
-                        label: 'Stamina (%)',
-                        data: getLastNDays(performanceData.historicalData.stamina, 7),
-                        borderColor: '#4ecdc4',
-                        backgroundColor: 'rgba(78, 205, 196, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    },
-                    {
-                        label: 'Strength (kg/2)',
-                        data: getLastNDays(performanceData.historicalData.strength, 7).map(val => val / 2),
-                        borderColor: '#f093fb',
-                        backgroundColor: 'rgba(240, 147, 251, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(0,0,0,0.1)'
-                        }
-                    },
-                    x: {
-                        grid: {
-                            color: 'rgba(0,0,0,0.1)'
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        position: 'top'
-                    }
-                },
-                elements: {
-                    point: {
-                        radius: 5,
-                        hoverRadius: 8
-                    }
-                }
-            }
+    // Initialize dashboard chart
+    initializeDashboardChart();
+
+    // Add sport selector event listener
+    const sportSelector = document.getElementById('dashboardSportSelect');
+    if (sportSelector) {
+        sportSelector.addEventListener('change', function() {
+            updateDashboardChart(this.value);
         });
     }
+}
 
+function initializeDashboardChart() {
+    const selectedSport = document.getElementById('dashboardSportSelect')?.value || 'football';
+    updateDashboardChart(selectedSport);
+}
 
-    // Progress trajectory chart
-    const trajectoryCtx = document.getElementById('trajectoryChart');
-    if (trajectoryCtx) {
-        new Chart(trajectoryCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Speed', 'Stamina', 'Agility', 'Strength'],
-                datasets: [{
-                    label: 'Current Performance',
-                    data: [performanceData.currentMetrics.speed || 0,
-                           performanceData.currentMetrics.stamina || 0,
-                           performanceData.currentMetrics.agility || 0,
-                           performanceData.currentMetrics.strength || 0],
-                    backgroundColor: ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f093fb'],
-                    borderWidth: 0
-                }]
+function updateDashboardChart(sport) {
+    const dashboardCtx = document.getElementById('dashboardChart');
+    if (!dashboardCtx) return;
+
+    // Destroy existing chart if it exists
+    if (window.dashboardChart) {
+        window.dashboardChart.destroy();
+    }
+
+    // Update chart title
+    const chartTitle = document.getElementById('chartTitle');
+    if (chartTitle) {
+        chartTitle.textContent = `${sport.charAt(0).toUpperCase() + sport.slice(1)} Performance Metrics`;
+    }
+
+    // Get data for selected sport
+    const sportData = getSportPerformanceData(sport);
+
+    window.dashboardChart = new Chart(dashboardCtx, {
+        type: 'bar',
+        data: {
+            labels: sportData.labels,
+            datasets: [{
+                label: 'Performance Values',
+                data: sportData.values,
+                backgroundColor: sportData.colors,
+                borderWidth: 0,
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label;
+                            const value = context.parsed.y;
+                            const unit = getMetricUnit(label);
+                            return `${label}: ${value}${unit}`;
+                        }
+                    }
+                }
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0,0,0,0.1)'
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return value;
+                        }
+                    }
+                },
+                x: {
+                    grid: {
                         display: false
                     }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(0,0,0,0.1)'
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        }
-                    }
                 }
             }
-        });
+        }
+    });
+}
+
+function getSportPerformanceData(sport) {
+    // Get latest entry for the selected sport
+    const latestEntry = performanceData.sessions
+        .filter(session => session.sport === sport)
+        .sort((a, b) => new Date(b.created_at || b.date) - new Date(a.created_at || a.date))[0];
+
+    if (sport === 'football') {
+        const data = {
+            labels: ['Speed', 'Stamina', 'Agility', 'Strength'],
+            values: [
+                latestEntry?.speed || performanceData.currentMetrics.speed || 0,
+                latestEntry?.stamina || performanceData.currentMetrics.stamina || 0,
+                latestEntry?.agility || performanceData.currentMetrics.agility || 0,
+                latestEntry?.strength || performanceData.currentMetrics.strength || 0
+            ],
+            colors: ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f093fb']
+        };
+        return data;
+    } else if (sport === 'cricket') {
+        const data = {
+            labels: ['Wickets', 'Runs', 'Sessions'],
+            values: [
+                latestEntry?.wickets || 0,
+                latestEntry?.runs || 0,
+                performanceData.sessions.filter(s => s.sport === 'cricket').length
+            ],
+            colors: ['#27ae60', '#f39c12', '#9b59b6']
+        };
+        return data;
     }
+
+    return { labels: [], values: [], colors: [] };
+}
+
+function getMetricUnit(metric) {
+    const units = {
+        'Speed': ' km/h',
+        'Stamina': '%',
+        'Agility': 's',
+        'Strength': ' kg',
+        'Wickets': '',
+        'Runs': '',
+        'Sessions': ''
+    };
+    return units[metric] || '';
 }
 
 // Form handling
