@@ -49,14 +49,31 @@ let ngoData = {
 };
 
 // Initialize the app
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     initializeNavigation();
     initializeCharts();
     initializeFormHandlers();
     initializeAnalyticsControls();
     initializeNGOHelp();
-    loadPerformanceData();
+
+    // Check backend connectivity and load data
+    await checkBackendConnection();
+    await loadPerformanceData();
+    await loadDashboardData();
 });
+
+async function checkBackendConnection() {
+    try {
+        const response = await apiCall('/health');
+        if (response && response.status === 'healthy') {
+            showNotification('Connected to backend successfully', 'success');
+            console.log('Backend connection established:', response.message);
+        }
+    } catch (error) {
+        console.error('Backend connection failed:', error);
+        showNotification('Backend not available - using local storage mode', 'warning');
+    }
+}
 
 // Navigation functionality
 function initializeNavigation() {
