@@ -822,18 +822,25 @@ function generateOpportunityData() {
 
 
 async function updateAnalyticsCharts(range) {
-    try {
-        showNotification(`Loading analytics for ${range} days...`, 'info');
+    if (isBackendAvailable) {
+        try {
+            showNotification(`Loading analytics for ${range} days...`, 'info');
 
-        const response = await apiCall(`/analytics/charts?days=${range}`);
-        if (response) {
-            updateTrajectoryChart(response);
-            showNotification(`Updated analytics for ${range} days`, 'success');
+            const response = await apiCall(`/analytics/charts?days=${range}`);
+            if (response) {
+                updateTrajectoryChart(response);
+                showNotification(`Updated analytics for ${range} days`, 'success');
+                return;
+            }
+        } catch (error) {
+            console.log('Analytics data not available from backend');
+            isBackendAvailable = false;
         }
-    } catch (error) {
-        console.error('Failed to update analytics:', error);
-        showNotification('Failed to load analytics data', 'error');
     }
+
+    // Fallback to local data analytics
+    showNotification(`Updated analytics for ${range} days (using local data)`, 'info');
+    updateTrajectoryChartLocal();
 }
 
 function updateTrajectoryChart(chartData) {
