@@ -354,10 +354,8 @@ function initializeFormHandlers() {
     // Ensure default sport form is shown
     const defaultSport = document.querySelector('input[name="sport"]:checked');
     if (defaultSport) {
-        console.log('Default sport:', defaultSport.value);
         switchSportForm(defaultSport.value);
     } else {
-        console.log('No default sport selected, setting football as default');
         const footballRadio = document.querySelector('input[name="sport"][value="football"]');
         if (footballRadio) {
             footballRadio.checked = true;
