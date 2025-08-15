@@ -1155,6 +1155,97 @@ function updateDashboardChart(dailyMetrics) {
     });
 }
 
+function initializeDefaultChart() {
+    const dashboardCtx = document.getElementById('dashboardChart');
+    if (!dashboardCtx || !window.Chart) return;
+
+    // Destroy existing chart if it exists
+    if (window.dashboardChart) {
+        window.dashboardChart.destroy();
+    }
+
+    // Create a default chart with sample/current data
+    const last7Days = getLast7Days();
+    const currentMetrics = performanceData.currentMetrics;
+
+    // Create sample data based on current metrics
+    const sampleSpeedData = Array(7).fill(0).map((_, i) => {
+        const variation = (Math.random() - 0.5) * 4; // ±2 variation
+        return Math.max(0, (currentMetrics.speed || 20) + variation);
+    });
+
+    const sampleStaminaData = Array(7).fill(0).map((_, i) => {
+        const variation = (Math.random() - 0.5) * 10; // ±5 variation
+        return Math.max(0, Math.min(100, (currentMetrics.stamina || 75) + variation));
+    });
+
+    const sampleStrengthData = Array(7).fill(0).map((_, i) => {
+        const variation = (Math.random() - 0.5) * 20; // ±10 variation
+        return Math.max(0, (currentMetrics.strength || 100) + variation);
+    });
+
+    window.dashboardChart = new Chart(dashboardCtx, {
+        type: 'line',
+        data: {
+            labels: last7Days,
+            datasets: [
+                {
+                    label: 'Speed (km/h)',
+                    data: sampleSpeedData,
+                    borderColor: '#ff6b6b',
+                    backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'Stamina (%)',
+                    data: sampleStaminaData,
+                    borderColor: '#4ecdc4',
+                    backgroundColor: 'rgba(78, 205, 196, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'Strength (kg/2)',
+                    data: sampleStrengthData.map(val => val / 2),
+                    borderColor: '#f093fb',
+                    backgroundColor: 'rgba(240, 147, 251, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0,0,0,0.1)'
+                    }
+                },
+                x: {
+                    grid: {
+                        color: 'rgba(0,0,0,0.1)'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top'
+                }
+            },
+            elements: {
+                point: {
+                    radius: 5,
+                    hoverRadius: 8
+                }
+            }
+        }
+    });
+}
+
 function savePerformanceData() {
     // Save data to localStorage
     localStorage.setItem('athleteTrackerData', JSON.stringify(performanceData));
