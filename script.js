@@ -62,16 +62,31 @@ let ngoData = {
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', async function() {
-    initializeNavigation();
-    initializeCharts();
-    initializeFormHandlers();
-    initializeAnalyticsControls();
-    initializeNGOHelp();
+    try {
+        initializeNavigation();
+        initializeCharts();
+        initializeFormHandlers();
+        initializeAnalyticsControls();
+        initializeNGOHelp();
 
-    // Check backend connectivity and load data
-    await checkBackendConnection();
-    await loadPerformanceData();
-    await loadDashboardData();
+        // Check backend connectivity and load data
+        await checkBackendConnection();
+        await loadPerformanceData();
+        await loadDashboardData();
+
+        console.log('AthleteTracker Pro initialized successfully');
+
+        // Show welcome message after a brief delay
+        setTimeout(() => {
+            if (!isBackendAvailable) {
+                showNotification('Running in local mode - your data will be saved locally', 'info');
+            }
+        }, 1000);
+
+    } catch (error) {
+        console.error('Error during initialization:', error);
+        showNotification('Application initialized with limited functionality', 'warning');
+    }
 });
 
 async function checkBackendConnection() {
