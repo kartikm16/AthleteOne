@@ -284,23 +284,37 @@ function getSportPerformanceData(sport) {
         .sort((a, b) => new Date(b.created_at || b.date) - new Date(a.created_at || a.date))[0];
 
     if (sport === 'football') {
+        // Use demo data if no real data exists
+        const demoData = {
+            speed: 24.5,
+            stamina: 82,
+            agility: 7.2,
+            strength: 115
+        };
+
         const data = {
             labels: ['Speed', 'Stamina', 'Agility', 'Strength'],
             values: [
-                latestEntry?.speed || performanceData.currentMetrics.speed || 0,
-                latestEntry?.stamina || performanceData.currentMetrics.stamina || 0,
-                latestEntry?.agility || performanceData.currentMetrics.agility || 0,
-                latestEntry?.strength || performanceData.currentMetrics.strength || 0
+                latestEntry?.speed || performanceData.currentMetrics.speed || demoData.speed,
+                latestEntry?.stamina || performanceData.currentMetrics.stamina || demoData.stamina,
+                latestEntry?.agility || performanceData.currentMetrics.agility || demoData.agility,
+                latestEntry?.strength || performanceData.currentMetrics.strength || demoData.strength
             ],
             colors: ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f093fb']
         };
         return data;
     } else if (sport === 'cricket') {
+        // Use demo data if no real data exists
+        const demoData = {
+            wickets: 3,
+            runs: 47
+        };
+
         const data = {
             labels: ['Wickets Taken', 'Runs Scored'],
             values: [
-                latestEntry?.wickets || 0,
-                latestEntry?.runs || 0
+                latestEntry?.wickets || demoData.wickets,
+                latestEntry?.runs || demoData.runs
             ],
             colors: ['#27ae60', '#f39c12']
         };
