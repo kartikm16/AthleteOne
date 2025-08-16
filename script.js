@@ -988,6 +988,66 @@ function generateOpportunityData() {
             eligibility: ['Injured athlete', 'Medical reports', 'Coach recommendation'],
             deadline: 'Ongoing',
             amount: 'Full medical coverage'
+        },
+        {
+            id: 'opp-5',
+            title: 'Rural Sports Development Grant',
+            ngoName: 'Rural Sports Development Council',
+            type: 'Grant',
+            description: 'Special grants for athletes from rural areas to access urban training facilities and coaching.',
+            eligibility: ['Rural background', 'Age 14-26', 'Talent certification'],
+            deadline: '2024-03-31',
+            amount: '₹1,50,000'
+        },
+        {
+            id: 'opp-6',
+            title: 'Para-Athlete Support Program',
+            ngoName: 'Paralympic Support Network',
+            type: 'Equipment',
+            description: 'Specialized equipment and adaptive training support for para-athletes.',
+            eligibility: ['Certified disability', 'Competitive athlete', 'Medical clearance'],
+            deadline: 'Ongoing',
+            amount: 'Custom equipment'
+        },
+        {
+            id: 'opp-7',
+            title: 'Cricket Academy Admission',
+            ngoName: 'Youth Cricket Academy Trust',
+            type: 'Training',
+            description: 'Free admission to premier cricket academy with world-class coaching and facilities.',
+            eligibility: ['Age 12-18', 'Basic cricket skills', 'Family income below ₹5L'],
+            deadline: '2024-04-15',
+            amount: 'Full training package'
+        },
+        {
+            id: 'opp-8',
+            title: 'Olympic Preparation Fund',
+            ngoName: 'Olympic Dreams Foundation',
+            type: 'Financial',
+            description: 'Complete financial support for Olympic preparation including international training and competitions.',
+            eligibility: ['National level athlete', 'Olympic potential', 'Age 18-28'],
+            deadline: '2024-05-30',
+            amount: '₹10,00,000'
+        },
+        {
+            id: 'opp-9',
+            title: 'Tribal Youth Sports Initiative',
+            ngoName: 'Tribal Sports Welfare Society',
+            type: 'Development',
+            description: 'Comprehensive sports development program for tribal youth including coaching and competitions.',
+            eligibility: ['Tribal community', 'Age 10-25', 'Basic fitness'],
+            deadline: '2024-06-20',
+            amount: '₹75,000'
+        },
+        {
+            id: 'opp-10',
+            title: 'Sports Medicine Fellowship',
+            ngoName: 'Sports Medicine & Rehabilitation Center',
+            type: 'Medical',
+            description: 'Free sports medicine consultation and treatment for competitive athletes.',
+            eligibility: ['Competitive athlete', 'Injury or health concern', 'Medical referral'],
+            deadline: 'Ongoing',
+            amount: 'Full medical care'
         }
     ];
 }
