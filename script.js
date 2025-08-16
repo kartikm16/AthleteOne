@@ -1712,6 +1712,12 @@ function displayNGOs(ngos) {
     const grid = document.getElementById('ngoDirectoryGrid');
     if (!grid) return;
 
+    // Update summary statistics
+    const totalNGOsElement = document.getElementById('totalNGOs');
+    if (totalNGOsElement) {
+        totalNGOsElement.textContent = ngos.length;
+    }
+
     grid.innerHTML = ngos.map(ngo => `
         <div class="ngo-card" data-ngo-id="${ngo.id}">
             <div class="ngo-card-header">
