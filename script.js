@@ -1,14 +1,56 @@
 // Global variables for data management
 let performanceData = {
-    sessions: [],
+    sessions: generateDemoSessions(),
     currentMetrics: {
-        speed: 0,
-        stamina: 0,
-        agility: 0,
-        strength: 0
+        speed: 24.5,
+        stamina: 82,
+        agility: 7.2,
+        strength: 115
     },
     historicalData: generateSampleData()
 };
+
+// Backend API configuration
+const API_BASE_URL = 'http://localhost:5000/api';
+
+// Global flag to track backend availability
+let isBackendAvailable = false;
+
+// API helper functions
+async function apiCall(endpoint, method = 'GET', data = null) {
+    // If backend is known to be unavailable, throw error immediately
+    if (!isBackendAvailable) {
+        throw new Error('Backend not available');
+    }
+
+    try {
+        const config = {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        };
+
+        if (data) {
+            config.body = JSON.stringify(data);
+        }
+
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('API call failed:', error);
+        // Mark backend as unavailable on fetch errors
+        if (error.message.includes('Failed to fetch')) {
+            isBackendAvailable = false;
+        }
+        throw error;
+    }
+}
 
 // NGO Help Centre data
 let ngoData = {
@@ -19,14 +61,84 @@ let ngoData = {
 };
 
 // Initialize the app
-document.addEventListener('DOMContentLoaded', function() {
-    initializeNavigation();
-    initializeCharts();
-    initializeFormHandlers();
-    initializeAnalyticsControls();
-    initializeNGOHelp();
-    loadPerformanceData();
+document.addEventListener('DOMContentLoaded', async function() {
+    try {
+        initializeNavigation();
+        initializeCharts();
+        initializeFormHandlers();
+        initializeReportGeneration();
+        initializeNGOHelp();
+
+        // Check backend connectivity and load data
+        await checkBackendConnection();
+        await loadPerformanceData();
+        await loadDashboardData();
+
+        console.log('AthleteTracker Pro initialized successfully');
+
+        // Show welcome message after a brief delay
+        setTimeout(() => {
+            if (!isBackendAvailable) {
+                showNotification('Running in local mode - your data will be saved locally', 'info');
+            }
+        }, 1000);
+
+    } catch (error) {
+        console.error('Error during initialization:', error);
+        showNotification('Application initialized with limited functionality', 'warning');
+    }
 });
+
+async function checkBackendConnection() {
+    try {
+        // First set backend as potentially available
+        isBackendAvailable = true;
+
+        const response = await apiCall('/health');
+        if (response && response.status === 'healthy') {
+            isBackendAvailable = true;
+            showConnectionStatus(true);
+            console.log('Backend connection established:', response.message);
+            return true;
+        }
+    } catch (error) {
+        isBackendAvailable = false;
+        showConnectionStatus(false);
+        console.log('Backend not available, using localStorage mode');
+        return false;
+    }
+}
+
+function showConnectionStatus(connected) {
+    // Remove any existing status indicator
+    const existingStatus = document.querySelector('.connection-status');
+    if (existingStatus) {
+        existingStatus.remove();
+    }
+
+    // Create status indicator
+    const statusDiv = document.createElement('div');
+    statusDiv.className = 'connection-status';
+    statusDiv.innerHTML = `
+        <i class="fas fa-${connected ? 'wifi' : 'wifi-slash'}"></i>
+        <span>${connected ? 'Backend Connected' : 'Local Mode'}</span>
+    `;
+
+    // Add to navigation
+    const navContainer = document.querySelector('.nav-container');
+    if (navContainer) {
+        navContainer.appendChild(statusDiv);
+    }
+
+    // Auto-hide success status after 3 seconds
+    if (connected) {
+        setTimeout(() => {
+            if (statusDiv.parentElement) {
+                statusDiv.remove();
+            }
+        }, 3000);
+    }
+}
 
 // Navigation functionality
 function initializeNavigation() {
@@ -78,113 +190,173 @@ function initializeNavigation() {
 
 // Chart initialization
 function initializeCharts() {
-    // Dashboard performance chart
-    const dashboardCtx = document.getElementById('dashboardChart');
-    if (dashboardCtx) {
-        new Chart(dashboardCtx, {
-            type: 'line',
-            data: {
-                labels: getLast7Days(),
-                datasets: [
-                    {
-                        label: 'Speed (km/h)',
-                        data: getLastNDays(performanceData.historicalData.speed, 7),
-                        borderColor: '#ff6b6b',
-                        backgroundColor: 'rgba(255, 107, 107, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    },
-                    {
-                        label: 'Stamina (%)',
-                        data: getLastNDays(performanceData.historicalData.stamina, 7),
-                        borderColor: '#4ecdc4',
-                        backgroundColor: 'rgba(78, 205, 196, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    },
-                    {
-                        label: 'Strength (kg/2)',
-                        data: getLastNDays(performanceData.historicalData.strength, 7).map(val => val / 2),
-                        borderColor: '#f093fb',
-                        backgroundColor: 'rgba(240, 147, 251, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(0,0,0,0.1)'
-                        }
-                    },
-                    x: {
-                        grid: {
-                            color: 'rgba(0,0,0,0.1)'
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        position: 'top'
-                    }
-                },
-                elements: {
-                    point: {
-                        radius: 5,
-                        hoverRadius: 8
-                    }
-                }
-            }
+    // Initialize dashboard chart
+    initializeDashboardChart();
+
+    // Add sport selector event listener
+    const sportSelector = document.getElementById('dashboardSportSelect');
+    if (sportSelector) {
+        sportSelector.addEventListener('change', function() {
+            updateDashboardChart(this.value);
         });
     }
+}
 
+function initializeDashboardChart() {
+    const selectedSport = document.getElementById('dashboardSportSelect')?.value || 'football';
+    updateDashboardChart(selectedSport);
+}
 
-    // Progress trajectory chart
-    const trajectoryCtx = document.getElementById('trajectoryChart');
-    if (trajectoryCtx) {
-        new Chart(trajectoryCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Speed', 'Stamina', 'Agility', 'Strength'],
-                datasets: [{
-                    label: 'Current Performance',
-                    data: [performanceData.currentMetrics.speed || 0,
-                           performanceData.currentMetrics.stamina || 0,
-                           performanceData.currentMetrics.agility || 0,
-                           performanceData.currentMetrics.strength || 0],
-                    backgroundColor: ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f093fb'],
-                    borderWidth: 0
-                }]
+function updateDashboardChart(sport) {
+    const dashboardCtx = document.getElementById('dashboardChart');
+    if (!dashboardCtx) return;
+
+    // Destroy existing chart if it exists
+    if (window.dashboardChart) {
+        window.dashboardChart.destroy();
+    }
+
+    // Update chart title
+    const chartTitle = document.getElementById('chartTitle');
+    if (chartTitle) {
+        chartTitle.textContent = `${sport.charAt(0).toUpperCase() + sport.slice(1)} Performance Metrics`;
+    }
+
+    // Get data for selected sport
+    const sportData = getSportPerformanceData(sport);
+
+    // Check if we're showing demo data
+    const realSessions = performanceData.sessions.filter(session =>
+        !session.id.includes('demo-') && session.sport === sport
+    );
+    const isShowingDemo = realSessions.length === 0;
+
+    window.dashboardChart = new Chart(dashboardCtx, {
+        type: 'bar',
+        data: {
+            labels: sportData.labels,
+            datasets: [{
+                label: isShowingDemo ? 'Demo Performance Values' : 'Performance Values',
+                data: sportData.values,
+                backgroundColor: isShowingDemo
+                    ? sportData.colors.map(color => color + '80') // Add transparency for demo data
+                    : sportData.colors,
+                borderWidth: isShowingDemo ? 2 : 0,
+                borderColor: isShowingDemo ? sportData.colors : undefined,
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label;
+                            const value = context.parsed.y;
+                            const unit = getMetricUnit(label);
+                            return `${label}: ${value}${unit}`;
+                        }
+                    }
+                }
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0,0,0,0.1)'
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return value;
+                        }
+                    }
+                },
+                x: {
+                    grid: {
                         display: false
                     }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(0,0,0,0.1)'
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        }
-                    }
                 }
             }
-        });
+        }
+    });
+}
+
+function getSportPerformanceData(sport) {
+    // Get latest entry for the selected sport (excluding demo data)
+    const realSessions = performanceData.sessions.filter(session =>
+        !session.id.includes('demo-') && session.sport === sport
+    );
+    const latestEntry = realSessions
+        .sort((a, b) => new Date(b.created_at || b.date) - new Date(a.created_at || a.date))[0];
+
+    // Check if we have real data
+    const hasRealData = realSessions.length > 0;
+    updateDemoIndicator(!hasRealData);
+
+    if (sport === 'football') {
+        // Use demo data if no real data exists
+        const demoData = {
+            speed: 24.5,
+            stamina: 82,
+            agility: 7.2,
+            strength: 115
+        };
+
+        const data = {
+            labels: ['Speed', 'Stamina', 'Agility', 'Strength'],
+            values: [
+                latestEntry?.speed || performanceData.currentMetrics.speed || demoData.speed,
+                latestEntry?.stamina || performanceData.currentMetrics.stamina || demoData.stamina,
+                latestEntry?.agility || performanceData.currentMetrics.agility || demoData.agility,
+                latestEntry?.strength || performanceData.currentMetrics.strength || demoData.strength
+            ],
+            colors: ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f093fb']
+        };
+        return data;
+    } else if (sport === 'cricket') {
+        // Use demo data if no real data exists
+        const demoData = {
+            wickets: 3,
+            runs: 47
+        };
+
+        const data = {
+            labels: ['Wickets Taken', 'Runs Scored'],
+            values: [
+                latestEntry?.wickets || demoData.wickets,
+                latestEntry?.runs || demoData.runs
+            ],
+            colors: ['#27ae60', '#f39c12']
+        };
+        return data;
     }
+
+    return { labels: [], values: [], colors: [] };
+}
+
+function updateDemoIndicator(showDemo) {
+    const demoIndicator = document.getElementById('demoIndicator');
+    if (demoIndicator) {
+        demoIndicator.style.display = showDemo ? 'flex' : 'none';
+    }
+}
+
+function getMetricUnit(metric) {
+    const units = {
+        'Speed': ' km/h',
+        'Stamina': '%',
+        'Agility': 's',
+        'Strength': ' kg',
+        'Wickets Taken': '',
+        'Runs Scored': '',
+        'Sessions': ''
+    };
+    return units[metric] || '';
 }
 
 // Form handling
@@ -200,6 +372,7 @@ function initializeFormHandlers() {
 
     // Sport selection handling
     const sportOptions = document.querySelectorAll('input[name="sport"]');
+
     sportOptions.forEach(option => {
         option.addEventListener('change', function() {
             switchSportForm(this.value);
@@ -213,6 +386,18 @@ function initializeFormHandlers() {
 
     if (footballDateInput) footballDateInput.value = today;
     if (cricketDateInput) cricketDateInput.value = today;
+
+    // Ensure default sport form is shown
+    const defaultSport = document.querySelector('input[name="sport"]:checked');
+    if (defaultSport) {
+        switchSportForm(defaultSport.value);
+    } else {
+        const footballRadio = document.querySelector('input[name="sport"][value="football"]');
+        if (footballRadio) {
+            footballRadio.checked = true;
+            switchSportForm('football');
+        }
+    }
 
     // Video upload handling
     const videoUpload = document.getElementById('videoUpload');
@@ -249,29 +434,8 @@ function initializeFormHandlers() {
     }
 }
 
-// Analytics controls
-function initializeAnalyticsControls() {
-    // Time range buttons
-    const timeButtons = document.querySelectorAll('.time-btn');
-    timeButtons.forEach(btn => {
-        btn.addEventListener('click', function() {
-            timeButtons.forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            
-            const range = this.getAttribute('data-range');
-            updateAnalyticsCharts(range);
-        });
-    });
-
-    // Compare with peak button
-    const compareBtn = document.getElementById('compareWithPeak');
-    if (compareBtn) {
-        compareBtn.addEventListener('click', function() {
-            showPeakComparison();
-        });
-    }
-
-    // Report generation
+// Report generation
+function initializeReportGeneration() {
     const generateReportBtn = document.getElementById('generateReport');
     if (generateReportBtn) {
         generateReportBtn.addEventListener('click', function() {
@@ -285,6 +449,11 @@ function switchSportForm(sport) {
     const footballForm = document.getElementById('football-form');
     const cricketForm = document.getElementById('cricket-form');
 
+    if (!footballForm || !cricketForm) {
+        console.error('Sport forms not found');
+        return;
+    }
+
     if (sport === 'football') {
         footballForm.classList.add('active');
         cricketForm.classList.remove('active');
@@ -295,7 +464,7 @@ function switchSportForm(sport) {
 }
 
 // Performance data handling
-function handlePerformanceSubmission() {
+async function handlePerformanceSubmission() {
     try {
         const selectedSportElement = document.querySelector('input[name="sport"]:checked');
         if (!selectedSportElement) {
@@ -317,31 +486,27 @@ function handlePerformanceSubmission() {
 
             formData = {
                 sport: 'football',
-                sessionType: sessionType.value,
+                session_type: sessionType.value,
                 date: date.value,
-                duration: document.getElementById('football-duration')?.value || '',
-                speed: document.getElementById('football-speed')?.value || '',
-                stamina: document.getElementById('football-stamina')?.value || '',
-                agility: document.getElementById('football-agility')?.value || '',
-                strength: document.getElementById('football-strength')?.value || '',
-                goals: document.getElementById('football-goals')?.value || '',
-                assists: document.getElementById('football-assists')?.value || '',
-                notes: ''
+                duration: document.getElementById('football-duration')?.value || null,
+                speed: document.getElementById('football-speed')?.value || null,
+                stamina: document.getElementById('football-stamina')?.value || null,
+                agility: document.getElementById('football-agility')?.value || null,
+                strength: document.getElementById('football-strength')?.value || null,
+                goals: document.getElementById('football-goals')?.value || null,
+                assists: document.getElementById('football-assists')?.value || null,
+                notes: document.getElementById('notes')?.value || ''
             };
 
-            // Update current metrics if provided (for football)
-            if (formData.speed && !isNaN(parseFloat(formData.speed))) {
-                performanceData.currentMetrics.speed = parseFloat(formData.speed);
-            }
-            if (formData.stamina && !isNaN(parseFloat(formData.stamina))) {
-                performanceData.currentMetrics.stamina = parseFloat(formData.stamina);
-            }
-            if (formData.agility && !isNaN(parseFloat(formData.agility))) {
-                performanceData.currentMetrics.agility = parseFloat(formData.agility);
-            }
-            if (formData.strength && !isNaN(parseFloat(formData.strength))) {
-                performanceData.currentMetrics.strength = parseFloat(formData.strength);
-            }
+            // Convert empty strings to null for numeric fields
+            ['duration', 'speed', 'stamina', 'agility', 'strength', 'goals', 'assists'].forEach(field => {
+                if (formData[field] === '' || formData[field] === '0') {
+                    formData[field] = null;
+                } else if (formData[field] !== null) {
+                    formData[field] = parseFloat(formData[field]);
+                }
+            });
+
         } else if (selectedSport === 'cricket') {
             const sessionType = document.getElementById('cricket-session-type');
             const date = document.getElementById('cricket-session-date');
@@ -353,44 +518,105 @@ function handlePerformanceSubmission() {
 
             formData = {
                 sport: 'cricket',
-                sessionType: sessionType.value,
+                session_type: sessionType.value,
                 date: date.value,
-                duration: document.getElementById('cricket-duration')?.value || '',
-                wickets: document.getElementById('cricket-wickets')?.value || '',
-                runs: document.getElementById('cricket-runs')?.value || '',
-                notes: ''
+                duration: document.getElementById('cricket-duration')?.value || null,
+                wickets: document.getElementById('cricket-wickets')?.value || null,
+                runs: document.getElementById('cricket-runs')?.value || null,
+                notes: document.getElementById('notes')?.value || ''
             };
+
+            // Convert empty strings to null for numeric fields
+            ['duration', 'wickets', 'runs'].forEach(field => {
+                if (formData[field] === '' || formData[field] === null) {
+                    formData[field] = null;
+                } else if (formData[field] !== null) {
+                    if (field === 'duration') {
+                        formData[field] = parseInt(formData[field]);
+                    } else {
+                        formData[field] = parseInt(formData[field]);
+                    }
+                }
+            });
         }
 
         // Validate required fields
-        if (!formData.sessionType || !formData.date) {
+        if (!formData.session_type || !formData.date) {
             showNotification('Please fill in all required fields (Session Type and Date)', 'error');
             return;
         }
 
-        // Save to performance data
-        performanceData.sessions.push({
+        // Try to submit to backend if available, otherwise use localStorage
+        if (isBackendAvailable) {
+            try {
+                showNotification('Submitting performance data...', 'info');
+
+                const response = await apiCall('/performance', 'POST', formData);
+
+                if (response.entry) {
+                    // Update local data
+                    performanceData.sessions.push(response.entry);
+
+                    // Update current metrics if it's football data
+            if (selectedSport === 'football' && response.entry) {
+                if (response.entry.speed) performanceData.currentMetrics.speed = response.entry.speed;
+                if (response.entry.stamina) performanceData.currentMetrics.stamina = response.entry.stamina;
+                if (response.entry.agility) performanceData.currentMetrics.agility = response.entry.agility;
+                if (response.entry.strength) performanceData.currentMetrics.strength = response.entry.strength;
+            }
+
+            // Always update dashboard to show latest data
+            updateDashboardMetrics();
+
+                    // Clear form
+                    clearFormFields(selectedSport);
+
+                    showNotification(`${selectedSport.charAt(0).toUpperCase() + selectedSport.slice(1)} performance logged successfully!`, 'success');
+
+                    // Refresh dashboard data
+                    await loadDashboardData();
+
+                    // Save to localStorage as backup
+                    savePerformanceData();
+                    return;
+                }
+            } catch (error) {
+                console.log('Backend submission failed, using localStorage');
+                isBackendAvailable = false;
+            }
+        }
+
+        // Fallback to localStorage storage
+        const localEntry = {
             ...formData,
             id: Date.now(),
-            timestamp: new Date()
-        });
+            created_at: new Date().toISOString()
+        };
 
-        // Update dashboard metrics (only for football since cricket doesn't have these metrics)
+        performanceData.sessions.push(localEntry);
+
+        // Update current metrics if it's football data
         if (selectedSport === 'football') {
-            updateDashboardMetrics();
+            if (formData.speed) performanceData.currentMetrics.speed = formData.speed;
+            if (formData.stamina) performanceData.currentMetrics.stamina = formData.stamina;
+            if (formData.agility) performanceData.currentMetrics.agility = formData.agility;
+            if (formData.strength) performanceData.currentMetrics.strength = formData.strength;
         }
+
+        // Always update dashboard to show latest data
+        updateDashboardMetrics();
 
         // Clear form
         clearFormFields(selectedSport);
 
-        showNotification(`${selectedSport.charAt(0).toUpperCase() + selectedSport.slice(1)} performance logged successfully!`, 'success');
+        showNotification(`${selectedSport.charAt(0).toUpperCase() + selectedSport.slice(1)} performance logged successfully! (Saved locally)`, 'success');
 
-        // Save data to localStorage
+        // Save to localStorage
         savePerformanceData();
 
     } catch (error) {
         console.error('Error submitting performance data:', error);
-        showNotification('An error occurred while saving your data. Please try again.', 'error');
+        showNotification('Failed to submit performance data. Please check your connection and try again.', 'error');
     }
 }
 
@@ -421,18 +647,9 @@ function clearFormFields(sport) {
 }
 
 function updateDashboardMetrics() {
-    const metrics = performanceData.currentMetrics;
-    
-    // Update metric cards
-    const speedValue = document.querySelector('.speed-card .metric-value');
-    const staminaValue = document.querySelector('.stamina-card .metric-value');
-    const agilityValue = document.querySelector('.agility-card .metric-value');
-    const strengthValue = document.querySelector('.strength-card .metric-value');
-
-    if (speedValue) speedValue.textContent = `${metrics.speed} km/h`;
-    if (staminaValue) staminaValue.textContent = `${metrics.stamina}%`;
-    if (agilityValue) agilityValue.textContent = `${metrics.agility}s`;
-    if (strengthValue) strengthValue.textContent = `${metrics.strength}kg`;
+    // Update the dashboard chart with current metrics
+    const selectedSport = document.getElementById('dashboardSportSelect')?.value || 'football';
+    updateDashboardChart(selectedSport);
 }
 
 // Video upload handling
@@ -499,6 +716,69 @@ function generateSampleData() {
     }
 
     return { speed, stamina, strength };
+}
+
+// Generate demo performance sessions
+function generateDemoSessions() {
+    const demoSessions = [];
+    const today = new Date();
+
+    // Football sessions with progressive improvement
+    const footballBaseStats = { speed: 22, stamina: 75, agility: 8, strength: 105 };
+    for (let i = 0; i < 6; i++) {
+        const sessionDate = new Date(today);
+        sessionDate.setDate(today.getDate() - (i * 2 + 1));
+
+        // Add some progression and variation
+        const improvement = (6 - i) * 0.5; // Newer sessions show slight improvement
+        const variation = (Math.random() - 0.5) * 4; // Random variation
+
+        demoSessions.push({
+            id: `demo-football-${i}`,
+            sport: 'football',
+            session_type: ['training', 'match', 'practice'][i % 3],
+            date: sessionDate.toISOString().split('T')[0],
+            duration: 85 + Math.floor(Math.random() * 25),
+            speed: Math.round((footballBaseStats.speed + improvement + variation) * 10) / 10,
+            stamina: Math.round(footballBaseStats.stamina + improvement + variation),
+            agility: Math.round((footballBaseStats.agility - improvement/2 + variation/2) * 10) / 10, // Lower is better for agility
+            strength: Math.round(footballBaseStats.strength + improvement * 2 + variation),
+            goals: i % 3 === 1 ? Math.floor(Math.random() * 3) + 1 : Math.floor(Math.random() * 2),
+            assists: Math.floor(Math.random() * 4),
+            notes: `Demo ${['training', 'match', 'practice'][i % 3]} session`,
+            created_at: sessionDate.toISOString()
+        });
+    }
+
+    // Cricket sessions with realistic performance
+    const cricketScenarios = [
+        { wickets: 3, runs: 45, type: 'match' },
+        { wickets: 1, runs: 23, type: 'training' },
+        { wickets: 4, runs: 67, type: 'match' },
+        { wickets: 2, runs: 34, type: 'practice' },
+        { wickets: 0, runs: 78, type: 'match' }, // Batting focused
+        { wickets: 5, runs: 12, type: 'practice' } // Bowling focused
+    ];
+
+    for (let i = 0; i < 5; i++) {
+        const sessionDate = new Date(today);
+        sessionDate.setDate(today.getDate() - (i * 3 + 2));
+        const scenario = cricketScenarios[i % cricketScenarios.length];
+
+        demoSessions.push({
+            id: `demo-cricket-${i}`,
+            sport: 'cricket',
+            session_type: scenario.type,
+            date: sessionDate.toISOString().split('T')[0],
+            duration: 150 + Math.floor(Math.random() * 120),
+            wickets: scenario.wickets + Math.floor(Math.random() * 2),
+            runs: scenario.runs + Math.floor((Math.random() - 0.5) * 20),
+            notes: `Demo ${scenario.type} session`,
+            created_at: sessionDate.toISOString()
+        });
+    }
+
+    return demoSessions.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 }
 
 function getLast30Days() {
@@ -599,6 +879,114 @@ function generateNGOData() {
             successRate: 91,
             totalAid: '₹25L',
             established: 2016
+        },
+        {
+            id: 'ngo-7',
+            name: 'Rural Sports Development Council',
+            mission: 'Bringing sports opportunities to rural areas and supporting village-level athletes with comprehensive development programs.',
+            sports: ['athletics', 'football', 'cricket'],
+            aidTypes: ['equipment', 'training', 'financial'],
+            locations: ['nationwide'],
+            athletesHelped: 2156,
+            successRate: 82,
+            totalAid: '₹52L',
+            established: 2010
+        },
+        {
+            id: 'ngo-8',
+            name: 'Paralympic Support Network',
+            mission: 'Dedicated to supporting para-athletes with specialized equipment, training facilities, and competition opportunities.',
+            sports: ['athletics', 'basketball', 'tennis'],
+            aidTypes: ['equipment', 'medical', 'training'],
+            locations: ['mumbai', 'delhi', 'bangalore'],
+            athletesHelped: 345,
+            successRate: 95,
+            totalAid: '₹22L',
+            established: 2017
+        },
+        {
+            id: 'ngo-9',
+            name: 'Youth Cricket Academy Trust',
+            mission: 'Nurturing young cricket talent from underprivileged backgrounds with world-class coaching and infrastructure.',
+            sports: ['cricket'],
+            aidTypes: ['training', 'equipment', 'career'],
+            locations: ['mumbai', 'bangalore', 'chennai'],
+            athletesHelped: 567,
+            successRate: 88,
+            totalAid: '₹31L',
+            established: 2013
+        },
+        {
+            id: 'ngo-10',
+            name: 'Olympic Dreams Foundation',
+            mission: 'Supporting aspiring Olympic athletes with elite training, international exposure, and complete financial backing.',
+            sports: ['athletics', 'tennis', 'football'],
+            aidTypes: ['financial', 'training', 'career'],
+            locations: ['delhi', 'mumbai', 'nationwide'],
+            athletesHelped: 234,
+            successRate: 96,
+            totalAid: '₹41L',
+            established: 2008
+        },
+        {
+            id: 'ngo-11',
+            name: 'Tribal Sports Welfare Society',
+            mission: 'Empowering tribal youth through sports development programs and creating pathways to professional athletics.',
+            sports: ['athletics', 'football', 'basketball'],
+            aidTypes: ['equipment', 'training', 'financial'],
+            locations: ['odisha', 'jharkhand', 'chhattisgarh'],
+            athletesHelped: 1089,
+            successRate: 79,
+            totalAid: '₹29L',
+            established: 2011
+        },
+        {
+            id: 'ngo-12',
+            name: 'Sports Medicine & Rehabilitation Center',
+            mission: 'Providing specialized medical care, injury rehabilitation, and sports science support to athletes.',
+            sports: ['athletics', 'cricket', 'football', 'tennis'],
+            aidTypes: ['medical', 'training'],
+            locations: ['mumbai', 'delhi', 'pune'],
+            athletesHelped: 678,
+            successRate: 93,
+            totalAid: '₹35L',
+            established: 2019
+        },
+        {
+            id: 'ngo-13',
+            name: 'Athlete Education Trust',
+            mission: 'Supporting student-athletes with educational scholarships while they pursue their sporting careers.',
+            sports: ['football', 'cricket', 'basketball', 'athletics'],
+            aidTypes: ['financial', 'career'],
+            locations: ['nationwide'],
+            athletesHelped: 1534,
+            successRate: 90,
+            totalAid: '₹47L',
+            established: 2009
+        },
+        {
+            id: 'ngo-14',
+            name: 'Community Sports Hub',
+            mission: 'Creating local sports communities and providing infrastructure development for neighborhood sports facilities.',
+            sports: ['football', 'cricket', 'basketball'],
+            aidTypes: ['equipment', 'training'],
+            locations: ['mumbai', 'pune', 'nagpur'],
+            athletesHelped: 2267,
+            successRate: 84,
+            totalAid: '₹39L',
+            established: 2016
+        },
+        {
+            id: 'ngo-15',
+            name: 'Champions Recovery Foundation',
+            mission: 'Supporting athletes recovering from serious injuries with comprehensive rehabilitation and career transition programs.',
+            sports: ['athletics', 'football', 'cricket', 'tennis'],
+            aidTypes: ['medical', 'career', 'financial'],
+            locations: ['bangalore', 'mumbai', 'delhi'],
+            athletesHelped: 234,
+            successRate: 97,
+            totalAid: '₹26L',
+            established: 2021
         }
     ];
 }
@@ -699,42 +1087,554 @@ function generateOpportunityData() {
             eligibility: ['Injured athlete', 'Medical reports', 'Coach recommendation'],
             deadline: 'Ongoing',
             amount: 'Full medical coverage'
+        },
+        {
+            id: 'opp-5',
+            title: 'Rural Sports Development Grant',
+            ngoName: 'Rural Sports Development Council',
+            type: 'Grant',
+            description: 'Special grants for athletes from rural areas to access urban training facilities and coaching.',
+            eligibility: ['Rural background', 'Age 14-26', 'Talent certification'],
+            deadline: '2024-03-31',
+            amount: '₹1,50,000'
+        },
+        {
+            id: 'opp-6',
+            title: 'Para-Athlete Support Program',
+            ngoName: 'Paralympic Support Network',
+            type: 'Equipment',
+            description: 'Specialized equipment and adaptive training support for para-athletes.',
+            eligibility: ['Certified disability', 'Competitive athlete', 'Medical clearance'],
+            deadline: 'Ongoing',
+            amount: 'Custom equipment'
+        },
+        {
+            id: 'opp-7',
+            title: 'Cricket Academy Admission',
+            ngoName: 'Youth Cricket Academy Trust',
+            type: 'Training',
+            description: 'Free admission to premier cricket academy with world-class coaching and facilities.',
+            eligibility: ['Age 12-18', 'Basic cricket skills', 'Family income below ₹5L'],
+            deadline: '2024-04-15',
+            amount: 'Full training package'
+        },
+        {
+            id: 'opp-8',
+            title: 'Olympic Preparation Fund',
+            ngoName: 'Olympic Dreams Foundation',
+            type: 'Financial',
+            description: 'Complete financial support for Olympic preparation including international training and competitions.',
+            eligibility: ['National level athlete', 'Olympic potential', 'Age 18-28'],
+            deadline: '2024-05-30',
+            amount: '₹10,00,000'
+        },
+        {
+            id: 'opp-9',
+            title: 'Tribal Youth Sports Initiative',
+            ngoName: 'Tribal Sports Welfare Society',
+            type: 'Development',
+            description: 'Comprehensive sports development program for tribal youth including coaching and competitions.',
+            eligibility: ['Tribal community', 'Age 10-25', 'Basic fitness'],
+            deadline: '2024-06-20',
+            amount: '₹75,000'
+        },
+        {
+            id: 'opp-10',
+            title: 'Sports Medicine Fellowship',
+            ngoName: 'Sports Medicine & Rehabilitation Center',
+            type: 'Medical',
+            description: 'Free sports medicine consultation and treatment for competitive athletes.',
+            eligibility: ['Competitive athlete', 'Injury or health concern', 'Medical referral'],
+            deadline: 'Ongoing',
+            amount: 'Full medical care'
         }
     ];
 }
 
 
-function updateAnalyticsCharts(range) {
-    // This would update charts based on the selected time range
-    showNotification(`Updated analytics for ${range} days`, 'info');
-}
 
-function showPeakComparison() {
-    showNotification('Comparing with your previous peak performance from 2 weeks ago', 'info');
-}
-
-function generatePerformanceReport() {
+async function generatePerformanceReport() {
     const reportType = document.querySelector('input[name="reportType"]:checked').value;
     showNotification(`Generating ${reportType} performance report...`, 'info');
-    
-    // Simulate report generation
-    setTimeout(() => {
-        showNotification(`${reportType.charAt(0).toUpperCase() + reportType.slice(1)} report generated successfully!`, 'success');
-    }, 2000);
+
+    if (isBackendAvailable) {
+        try {
+            const response = await apiCall('/reports/generate', 'POST', {
+                report_type: reportType,
+                sport: 'football'
+            });
+
+            if (response) {
+                updateReportPreview(response);
+                showNotification(`${reportType.charAt(0).toUpperCase() + reportType.slice(1)} report generated successfully!`, 'success');
+                return;
+            }
+        } catch (error) {
+            console.log('Report generation not available from backend');
+            isBackendAvailable = false;
+        }
+    }
+
+    // Fallback to local report generation
+    const localReport = generateLocalReport(reportType);
+    updateReportPreview(localReport);
+    showNotification(`${reportType.charAt(0).toUpperCase() + reportType.slice(1)} report generated successfully! (Local data)`, 'success');
 }
 
-function loadPerformanceData() {
-    // Load data from localStorage if available
+function updateReportPreview(reportData) {
+    const reportPreview = document.querySelector('.report-preview');
+    if (!reportPreview) return;
+
+    const period = reportData.period || 'Recent period';
+    const summary = reportData.summary || {};
+    const metrics = reportData.metrics || {};
+    const recommendations = reportData.recommendations || [];
+    const sessions = reportData.sessions || [];
+
+    let sessionsHTML = '';
+    if (sessions.length > 0) {
+        sessionsHTML = `
+            <div class="report-sessions">
+                <h4>Recent Training Sessions</h4>
+                <div class="sessions-list">
+                    ${sessions.slice(0, 5).map(session => `
+                        <div class="session-item">
+                            <div class="session-date">${new Date(session.date).toLocaleDateString()}</div>
+                            <div class="session-type">${session.session_type} - ${session.sport}</div>
+                            ${session.duration ? `<div class="session-duration">${session.duration} min</div>` : ''}
+                            <div class="session-metrics">
+                                ${session.speed ? `Speed: ${session.speed} km/h` : ''}
+                                ${session.stamina ? `${session.speed ? ', ' : ''}Stamina: ${session.stamina}%` : ''}
+                                ${session.wickets !== undefined ? `Wickets: ${session.wickets}` : ''}
+                                ${session.runs !== undefined ? `${session.wickets !== undefined ? ', ' : ''}Runs: ${session.runs}` : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    reportPreview.innerHTML = `
+        <h3>${reportData.report_type.charAt(0).toUpperCase() + reportData.report_type.slice(1)} Performance Report - ${period}</h3>
+
+        <div class="report-summary">
+            <div class="summary-metric">
+                <h4>Training Sessions</h4>
+                <span class="metric-number">${summary.total_sessions || 0}</span>
+            </div>
+            <div class="summary-metric">
+                <h4>Total Duration</h4>
+                <span class="metric-number">${summary.total_duration || 0} min</span>
+            </div>
+            <div class="summary-metric">
+                <h4>Average Performance</h4>
+                <span class="metric-number">${summary.average_performance || 0}%</span>
+            </div>
+        </div>
+
+        ${metrics && Object.keys(metrics).length > 0 ? `
+        <div class="report-metrics">
+            <h4>Performance Metrics</h4>
+            <div class="metrics-display">
+                ${metrics.average_speed ? `<div class="metric-item"><span class="metric-label">Average Speed:</span> <span class="metric-value">${metrics.average_speed} km/h</span></div>` : ''}
+                ${metrics.average_stamina ? `<div class="metric-item"><span class="metric-label">Average Stamina:</span> <span class="metric-value">${metrics.average_stamina}%</span></div>` : ''}
+                ${metrics.average_agility ? `<div class="metric-item"><span class="metric-label">Average Agility:</span> <span class="metric-value">${metrics.average_agility}s</span></div>` : ''}
+                ${metrics.average_strength ? `<div class="metric-item"><span class="metric-label">Average Strength:</span> <span class="metric-value">${metrics.average_strength}kg</span></div>` : ''}
+                ${metrics.total_wickets ? `<div class="metric-item"><span class="metric-label">Total Wickets:</span> <span class="metric-value">${metrics.total_wickets}</span></div>` : ''}
+                ${metrics.total_runs ? `<div class="metric-item"><span class="metric-label">Total Runs:</span> <span class="metric-value">${metrics.total_runs}</span></div>` : ''}
+            </div>
+        </div>
+        ` : ''}
+
+        ${sessionsHTML}
+
+        <div class="report-recommendations">
+            <h4>Training Recommendations</h4>
+            <ul>
+                ${recommendations.map(rec => `<li>${rec}</li>`).join('')}
+            </ul>
+        </div>
+    `;
+}
+
+
+function generateLocalReport(reportType) {
+    const sessions = performanceData.sessions || [];
+
+    // Filter sessions based on report type timeframe
+    const now = new Date();
+    const daysBack = reportType === 'weekly' ? 7 : reportType === 'monthly' ? 30 : 365;
+    const cutoffDate = new Date(now.getTime() - (daysBack * 24 * 60 * 60 * 1000));
+
+    const recentSessions = sessions.filter(session => {
+        const sessionDate = new Date(session.date || session.created_at);
+        return sessionDate >= cutoffDate;
+    });
+
+    const footballSessions = recentSessions.filter(s => s.sport === 'football');
+    const cricketSessions = recentSessions.filter(s => s.sport === 'cricket');
+
+    const totalSessions = recentSessions.length;
+    const totalDuration = recentSessions.reduce((sum, s) => sum + (parseInt(s.duration) || 0), 0);
+
+    // Calculate football metrics
+    const speeds = footballSessions.map(s => parseFloat(s.speed)).filter(s => !isNaN(s));
+    const staminas = footballSessions.map(s => parseFloat(s.stamina)).filter(s => !isNaN(s));
+    const agilities = footballSessions.map(s => parseFloat(s.agility)).filter(s => !isNaN(s));
+    const strengths = footballSessions.map(s => parseFloat(s.strength)).filter(s => !isNaN(s));
+
+    // Calculate cricket metrics
+    const wickets = cricketSessions.map(s => parseInt(s.wickets)).filter(w => !isNaN(w));
+    const runs = cricketSessions.map(s => parseInt(s.runs)).filter(r => !isNaN(r));
+
+    const avgSpeed = speeds.length ? (speeds.reduce((a, b) => a + b) / speeds.length).toFixed(1) : 0;
+    const avgStamina = staminas.length ? (staminas.reduce((a, b) => a + b) / staminas.length).toFixed(1) : 0;
+    const avgAgility = agilities.length ? (agilities.reduce((a, b) => a + b) / agilities.length).toFixed(1) : 0;
+    const avgStrength = strengths.length ? (strengths.reduce((a, b) => a + b) / strengths.length).toFixed(1) : 0;
+
+    const totalWickets = wickets.length ? wickets.reduce((a, b) => a + b, 0) : 0;
+    const totalRuns = runs.length ? runs.reduce((a, b) => a + b, 0) : 0;
+
+    // Calculate average performance based on available data
+    let avgPerformance = 0;
+    if (footballSessions.length > 0) {
+        const performanceFactors = [];
+        if (speeds.length) performanceFactors.push(Math.min(parseFloat(avgSpeed) / 30 * 100, 100));
+        if (staminas.length) performanceFactors.push(parseFloat(avgStamina));
+        if (agilities.length) performanceFactors.push(Math.max(0, 100 - (parseFloat(avgAgility) - 5) * 10));
+        if (strengths.length) performanceFactors.push(Math.min(parseFloat(avgStrength) / 150 * 100, 100));
+
+        avgPerformance = performanceFactors.length ?
+            Math.round(performanceFactors.reduce((a, b) => a + b) / performanceFactors.length) : 0;
+    } else if (cricketSessions.length > 0) {
+        // Cricket performance calculation based on wickets and runs
+        const cricketPerformanceFactors = [];
+        if (totalWickets > 0) cricketPerformanceFactors.push(Math.min(totalWickets * 10, 100)); // 10 points per wicket
+        if (totalRuns > 0) cricketPerformanceFactors.push(Math.min(totalRuns / 2, 100)); // 1 point per 2 runs, max 100
+
+        avgPerformance = cricketPerformanceFactors.length ?
+            Math.round(cricketPerformanceFactors.reduce((a, b) => a + b) / cricketPerformanceFactors.length) : 0;
+    }
+
+    // Generate recommendations based on actual data
+    const recommendations = [];
+    if (totalSessions === 0) {
+        recommendations.push('Start logging your training sessions to track your progress');
+    } else {
+        if (totalSessions < 3) {
+            recommendations.push('Try to maintain a consistent training schedule with at least 3 sessions per week');
+        }
+        if (footballSessions.length > 0) {
+            if (parseFloat(avgSpeed) > 0 && parseFloat(avgSpeed) < 20) {
+                recommendations.push('Focus on speed training with sprint intervals to improve your pace');
+            }
+            if (parseFloat(avgStamina) > 0 && parseFloat(avgStamina) < 75) {
+                recommendations.push('Increase cardiovascular training to boost your endurance levels');
+            }
+            if (parseFloat(avgAgility) > 8) {
+                recommendations.push('Work on agility drills to improve your reaction time and movement');
+            }
+        }
+        if (cricketSessions.length > 0) {
+            if (totalWickets === 0 && cricketSessions.length > 1) {
+                recommendations.push('Focus on bowling techniques to improve your wicket-taking ability');
+            } else if (totalWickets > 0 && totalWickets < cricketSessions.length) {
+                recommendations.push('Good bowling progress! Try to aim for at least 1 wicket per session');
+            }
+
+            if (totalRuns === 0 && cricketSessions.length > 1) {
+                recommendations.push('Practice batting techniques to start scoring runs consistently');
+            } else if (totalRuns > 0 && totalRuns < 30 * cricketSessions.length) {
+                recommendations.push('Improve batting skills to aim for 30+ runs per session on average');
+            } else if (totalRuns >= 30 * cricketSessions.length) {
+                recommendations.push('Excellent batting performance! Keep up the consistent scoring');
+            }
+        }
+        if (recommendations.length === 0) {
+            recommendations.push('Excellent progress! Keep maintaining your current training routine and gradually increase intensity');
+        }
+    }
+
+    const metrics = {};
+    if (footballSessions.length > 0) {
+        if (avgSpeed > 0) metrics.average_speed = avgSpeed;
+        if (avgStamina > 0) metrics.average_stamina = avgStamina;
+        if (avgAgility > 0) metrics.average_agility = avgAgility;
+        if (avgStrength > 0) metrics.average_strength = avgStrength;
+    }
+    if (cricketSessions.length > 0) {
+        if (totalWickets > 0) metrics.total_wickets = totalWickets;
+        if (totalRuns > 0) metrics.total_runs = totalRuns;
+    }
+
+    return {
+        report_type: reportType,
+        period: `${formatDate(cutoffDate)} to ${formatDate(now)}`,
+        summary: {
+            total_sessions: totalSessions,
+            total_duration: totalDuration,
+            average_performance: avgPerformance
+        },
+        metrics: metrics,
+        recommendations: recommendations,
+        sessions: recentSessions.sort((a, b) => new Date(b.date || b.created_at) - new Date(a.date || a.created_at))
+    };
+}
+
+function formatDate(date) {
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+
+async function loadPerformanceData() {
+    // Only try backend if it's available
+    if (isBackendAvailable) {
+        try {
+            const response = await apiCall('/performance?days=30');
+            if (response && response.entries) {
+                performanceData.sessions = response.entries;
+
+                // Update current metrics from latest football entry
+                const latestFootballEntry = response.entries.find(entry =>
+                    entry.sport === 'football' &&
+                    (entry.speed || entry.stamina || entry.agility || entry.strength)
+                );
+
+                if (latestFootballEntry) {
+                    performanceData.currentMetrics = {
+                        speed: latestFootballEntry.speed || 0,
+                        stamina: latestFootballEntry.stamina || 0,
+                        agility: latestFootballEntry.agility || 0,
+                        strength: latestFootballEntry.strength || 0
+                    };
+                }
+
+                updateDashboardMetrics();
+                console.log('Loaded performance data from backend');
+                return;
+            }
+        } catch (error) {
+            console.log('Backend unavailable, falling back to localStorage');
+            isBackendAvailable = false;
+        }
+    }
+
+    // Fallback to localStorage or use existing data
     const savedData = localStorage.getItem('athleteTrackerData');
     if (savedData) {
         try {
             const parsed = JSON.parse(savedData);
             performanceData = { ...performanceData, ...parsed };
             updateDashboardMetrics();
+            console.log('Loaded performance data from localStorage');
         } catch (e) {
             console.error('Error loading saved data:', e);
         }
+    } else {
+        console.log('No saved data found, using default values');
+        updateDashboardMetrics();
     }
+}
+
+async function loadDashboardData() {
+    // Only try backend if it's available
+    if (isBackendAvailable) {
+        try {
+            const response = await apiCall('/dashboard/metrics');
+            if (response) {
+                performanceData.currentMetrics = response.current_metrics;
+                updateDashboardMetrics();
+
+                // Update chart if we have daily metrics
+                if (response.daily_metrics) {
+                    updateDashboardChart(response.daily_metrics);
+                }
+                return;
+            }
+        } catch (error) {
+            console.log('Dashboard data not available from backend');
+            isBackendAvailable = false;
+        }
+    }
+
+    // Fallback to existing data and charts
+    updateDashboardMetrics();
+    // Initialize default chart if no backend data
+    initializeDefaultChart();
+}
+
+function updateDashboardChart(dailyMetrics) {
+    const dashboardCtx = document.getElementById('dashboardChart');
+    if (!dashboardCtx || !window.Chart) return;
+
+    // Destroy existing chart if it exists
+    if (window.dashboardChart) {
+        window.dashboardChart.destroy();
+    }
+
+    const dates = Object.keys(dailyMetrics).slice(-7);
+    const speedData = dates.map(date => dailyMetrics[date].speed);
+    const staminaData = dates.map(date => dailyMetrics[date].stamina);
+    const strengthData = dates.map(date => dailyMetrics[date].strength / 2); // Scale for better visualization
+
+    window.dashboardChart = new Chart(dashboardCtx, {
+        type: 'line',
+        data: {
+            labels: dates.map(date => {
+                const d = new Date(date);
+                return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            }),
+            datasets: [
+                {
+                    label: 'Speed (km/h)',
+                    data: speedData,
+                    borderColor: '#ff6b6b',
+                    backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'Stamina (%)',
+                    data: staminaData,
+                    borderColor: '#4ecdc4',
+                    backgroundColor: 'rgba(78, 205, 196, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'Strength (kg/2)',
+                    data: strengthData,
+                    borderColor: '#f093fb',
+                    backgroundColor: 'rgba(240, 147, 251, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0,0,0,0.1)'
+                    }
+                },
+                x: {
+                    grid: {
+                        color: 'rgba(0,0,0,0.1)'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top'
+                }
+            },
+            elements: {
+                point: {
+                    radius: 5,
+                    hoverRadius: 8
+                }
+            }
+        }
+    });
+}
+
+function initializeDefaultChart() {
+    const dashboardCtx = document.getElementById('dashboardChart');
+    if (!dashboardCtx || !window.Chart) return;
+
+    // Destroy existing chart if it exists
+    if (window.dashboardChart) {
+        window.dashboardChart.destroy();
+    }
+
+    // Create a default chart with sample/current data
+    const last7Days = getLast7Days();
+    const currentMetrics = performanceData.currentMetrics;
+
+    // Create sample data based on current metrics
+    const sampleSpeedData = Array(7).fill(0).map((_, i) => {
+        const variation = (Math.random() - 0.5) * 4; // ±2 variation
+        return Math.max(0, (currentMetrics.speed || 20) + variation);
+    });
+
+    const sampleStaminaData = Array(7).fill(0).map((_, i) => {
+        const variation = (Math.random() - 0.5) * 10; // ±5 variation
+        return Math.max(0, Math.min(100, (currentMetrics.stamina || 75) + variation));
+    });
+
+    const sampleStrengthData = Array(7).fill(0).map((_, i) => {
+        const variation = (Math.random() - 0.5) * 20; // ±10 variation
+        return Math.max(0, (currentMetrics.strength || 100) + variation);
+    });
+
+    window.dashboardChart = new Chart(dashboardCtx, {
+        type: 'line',
+        data: {
+            labels: last7Days,
+            datasets: [
+                {
+                    label: 'Speed (km/h)',
+                    data: sampleSpeedData,
+                    borderColor: '#ff6b6b',
+                    backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'Stamina (%)',
+                    data: sampleStaminaData,
+                    borderColor: '#4ecdc4',
+                    backgroundColor: 'rgba(78, 205, 196, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'Strength (kg/2)',
+                    data: sampleStrengthData.map(val => val / 2),
+                    borderColor: '#f093fb',
+                    backgroundColor: 'rgba(240, 147, 251, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0,0,0,0.1)'
+                    }
+                },
+                x: {
+                    grid: {
+                        color: 'rgba(0,0,0,0.1)'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top'
+                }
+            },
+            elements: {
+                point: {
+                    radius: 5,
+                    hoverRadius: 8
+                }
+            }
+        }
+    });
 }
 
 function savePerformanceData() {
@@ -808,6 +1708,12 @@ setInterval(savePerformanceData, 30000); // Save every 30 seconds
 function initializeNGOHelp() {
     initializeNGOTabs();
     initializeNGOSearch();
+
+    // Ensure NGO data is available
+    if (!ngoData.ngos || ngoData.ngos.length === 0) {
+        ngoData.ngos = generateNGOData();
+    }
+
     populateNGODirectory();
     populateRecommendations();
     populateApplications();
@@ -893,12 +1799,23 @@ function filterNGOs(searchTerm, sport, aidType, location) {
 
 // Populate NGO directory
 function populateNGODirectory() {
+    // Ensure NGO data exists
+    if (!ngoData.ngos || ngoData.ngos.length === 0) {
+        ngoData.ngos = generateNGOData();
+    }
+
     displayNGOs(ngoData.ngos);
 }
 
 function displayNGOs(ngos) {
     const grid = document.getElementById('ngoDirectoryGrid');
     if (!grid) return;
+
+    // Update summary statistics
+    const totalNGOsElement = document.getElementById('totalNGOs');
+    if (totalNGOsElement) {
+        totalNGOsElement.textContent = ngos.length;
+    }
 
     grid.innerHTML = ngos.map(ngo => `
         <div class="ngo-card" data-ngo-id="${ngo.id}">
