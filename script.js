@@ -278,10 +278,16 @@ function updateDashboardChart(sport) {
 }
 
 function getSportPerformanceData(sport) {
-    // Get latest entry for the selected sport
-    const latestEntry = performanceData.sessions
-        .filter(session => session.sport === sport)
+    // Get latest entry for the selected sport (excluding demo data)
+    const realSessions = performanceData.sessions.filter(session =>
+        !session.id.includes('demo-') && session.sport === sport
+    );
+    const latestEntry = realSessions
         .sort((a, b) => new Date(b.created_at || b.date) - new Date(a.created_at || a.date))[0];
+
+    // Check if we have real data
+    const hasRealData = realSessions.length > 0;
+    updateDemoIndicator(!hasRealData);
 
     if (sport === 'football') {
         // Use demo data if no real data exists
@@ -322,6 +328,13 @@ function getSportPerformanceData(sport) {
     }
 
     return { labels: [], values: [], colors: [] };
+}
+
+function updateDemoIndicator(showDemo) {
+    const demoIndicator = document.getElementById('demoIndicator');
+    if (demoIndicator) {
+        demoIndicator.style.display = showDemo ? 'flex' : 'none';
+    }
 }
 
 function getMetricUnit(metric) {
