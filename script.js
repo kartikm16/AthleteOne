@@ -780,6 +780,114 @@ function generateNGOData() {
             successRate: 91,
             totalAid: '₹25L',
             established: 2016
+        },
+        {
+            id: 'ngo-7',
+            name: 'Rural Sports Development Council',
+            mission: 'Bringing sports opportunities to rural areas and supporting village-level athletes with comprehensive development programs.',
+            sports: ['athletics', 'football', 'cricket'],
+            aidTypes: ['equipment', 'training', 'financial'],
+            locations: ['nationwide'],
+            athletesHelped: 2156,
+            successRate: 82,
+            totalAid: '₹52L',
+            established: 2010
+        },
+        {
+            id: 'ngo-8',
+            name: 'Paralympic Support Network',
+            mission: 'Dedicated to supporting para-athletes with specialized equipment, training facilities, and competition opportunities.',
+            sports: ['athletics', 'basketball', 'tennis'],
+            aidTypes: ['equipment', 'medical', 'training'],
+            locations: ['mumbai', 'delhi', 'bangalore'],
+            athletesHelped: 345,
+            successRate: 95,
+            totalAid: '₹22L',
+            established: 2017
+        },
+        {
+            id: 'ngo-9',
+            name: 'Youth Cricket Academy Trust',
+            mission: 'Nurturing young cricket talent from underprivileged backgrounds with world-class coaching and infrastructure.',
+            sports: ['cricket'],
+            aidTypes: ['training', 'equipment', 'career'],
+            locations: ['mumbai', 'bangalore', 'chennai'],
+            athletesHelped: 567,
+            successRate: 88,
+            totalAid: '₹31L',
+            established: 2013
+        },
+        {
+            id: 'ngo-10',
+            name: 'Olympic Dreams Foundation',
+            mission: 'Supporting aspiring Olympic athletes with elite training, international exposure, and complete financial backing.',
+            sports: ['athletics', 'tennis', 'football'],
+            aidTypes: ['financial', 'training', 'career'],
+            locations: ['delhi', 'mumbai', 'nationwide'],
+            athletesHelped: 234,
+            successRate: 96,
+            totalAid: '₹41L',
+            established: 2008
+        },
+        {
+            id: 'ngo-11',
+            name: 'Tribal Sports Welfare Society',
+            mission: 'Empowering tribal youth through sports development programs and creating pathways to professional athletics.',
+            sports: ['athletics', 'football', 'basketball'],
+            aidTypes: ['equipment', 'training', 'financial'],
+            locations: ['odisha', 'jharkhand', 'chhattisgarh'],
+            athletesHelped: 1089,
+            successRate: 79,
+            totalAid: '₹29L',
+            established: 2011
+        },
+        {
+            id: 'ngo-12',
+            name: 'Sports Medicine & Rehabilitation Center',
+            mission: 'Providing specialized medical care, injury rehabilitation, and sports science support to athletes.',
+            sports: ['athletics', 'cricket', 'football', 'tennis'],
+            aidTypes: ['medical', 'training'],
+            locations: ['mumbai', 'delhi', 'pune'],
+            athletesHelped: 678,
+            successRate: 93,
+            totalAid: '₹35L',
+            established: 2019
+        },
+        {
+            id: 'ngo-13',
+            name: 'Athlete Education Trust',
+            mission: 'Supporting student-athletes with educational scholarships while they pursue their sporting careers.',
+            sports: ['football', 'cricket', 'basketball', 'athletics'],
+            aidTypes: ['financial', 'career'],
+            locations: ['nationwide'],
+            athletesHelped: 1534,
+            successRate: 90,
+            totalAid: '₹47L',
+            established: 2009
+        },
+        {
+            id: 'ngo-14',
+            name: 'Community Sports Hub',
+            mission: 'Creating local sports communities and providing infrastructure development for neighborhood sports facilities.',
+            sports: ['football', 'cricket', 'basketball'],
+            aidTypes: ['equipment', 'training'],
+            locations: ['mumbai', 'pune', 'nagpur'],
+            athletesHelped: 2267,
+            successRate: 84,
+            totalAid: '₹39L',
+            established: 2016
+        },
+        {
+            id: 'ngo-15',
+            name: 'Champions Recovery Foundation',
+            mission: 'Supporting athletes recovering from serious injuries with comprehensive rehabilitation and career transition programs.',
+            sports: ['athletics', 'football', 'cricket', 'tennis'],
+            aidTypes: ['medical', 'career', 'financial'],
+            locations: ['bangalore', 'mumbai', 'delhi'],
+            athletesHelped: 234,
+            successRate: 97,
+            totalAid: '₹26L',
+            established: 2021
         }
     ];
 }
