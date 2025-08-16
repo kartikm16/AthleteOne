@@ -226,10 +226,34 @@ body {
     margin-bottom: 3rem;
 }
 
+.chart-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
 .dashboard-chart h3 {
     color: #333;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.5rem;
     text-align: center;
+}
+
+.demo-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.demo-indicator i {
+    font-size: 1rem;
 }
 
 .dashboard-chart canvas {
