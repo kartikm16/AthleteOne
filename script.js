@@ -225,15 +225,24 @@ function updateDashboardChart(sport) {
     // Get data for selected sport
     const sportData = getSportPerformanceData(sport);
 
+    // Check if we're showing demo data
+    const realSessions = performanceData.sessions.filter(session =>
+        !session.id.includes('demo-') && session.sport === sport
+    );
+    const isShowingDemo = realSessions.length === 0;
+
     window.dashboardChart = new Chart(dashboardCtx, {
         type: 'bar',
         data: {
             labels: sportData.labels,
             datasets: [{
-                label: 'Performance Values',
+                label: isShowingDemo ? 'Demo Performance Values' : 'Performance Values',
                 data: sportData.values,
-                backgroundColor: sportData.colors,
-                borderWidth: 0,
+                backgroundColor: isShowingDemo
+                    ? sportData.colors.map(color => color + '80') // Add transparency for demo data
+                    : sportData.colors,
+                borderWidth: isShowingDemo ? 2 : 0,
+                borderColor: isShowingDemo ? sportData.colors : undefined,
                 borderRadius: 8
             }]
         },
