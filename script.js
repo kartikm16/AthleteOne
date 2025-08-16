@@ -1607,14 +1607,11 @@ setInterval(savePerformanceData, 30000); // Save every 30 seconds
 
 // NGO Help Centre initialization
 function initializeNGOHelp() {
-    console.log('Initializing NGO Help Centre...');
-
     initializeNGOTabs();
     initializeNGOSearch();
 
     // Ensure NGO data is available
     if (!ngoData.ngos || ngoData.ngos.length === 0) {
-        console.log('Generating NGO data...');
         ngoData.ngos = generateNGOData();
     }
 
@@ -1625,8 +1622,6 @@ function initializeNGOHelp() {
     populateOpportunities();
     initializeModal();
     initializeImpactCharts();
-
-    console.log(`NGO Help Centre initialized with ${ngoData.ngos.length} NGOs`);
 }
 
 // NGO Tab navigation
