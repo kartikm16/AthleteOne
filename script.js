@@ -1705,7 +1705,6 @@ function populateNGODirectory() {
         ngoData.ngos = generateNGOData();
     }
 
-    console.log('Populating NGO directory with', ngoData.ngos.length, 'NGOs');
     displayNGOs(ngoData.ngos);
 }
 
