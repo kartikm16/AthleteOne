@@ -723,42 +723,57 @@ function generateDemoSessions() {
     const demoSessions = [];
     const today = new Date();
 
-    // Football sessions
-    for (let i = 0; i < 5; i++) {
+    // Football sessions with progressive improvement
+    const footballBaseStats = { speed: 22, stamina: 75, agility: 8, strength: 105 };
+    for (let i = 0; i < 6; i++) {
         const sessionDate = new Date(today);
         sessionDate.setDate(today.getDate() - (i * 2 + 1));
+
+        // Add some progression and variation
+        const improvement = (6 - i) * 0.5; // Newer sessions show slight improvement
+        const variation = (Math.random() - 0.5) * 4; // Random variation
 
         demoSessions.push({
             id: `demo-football-${i}`,
             sport: 'football',
-            session_type: i % 3 === 0 ? 'match' : 'training',
+            session_type: ['training', 'match', 'practice'][i % 3],
             date: sessionDate.toISOString().split('T')[0],
-            duration: 90 + Math.floor(Math.random() * 30),
-            speed: 20 + Math.random() * 10,
-            stamina: 70 + Math.random() * 25,
-            agility: 6 + Math.random() * 3,
-            strength: 100 + Math.random() * 40,
-            goals: i % 3 === 0 ? Math.floor(Math.random() * 3) : 0,
+            duration: 85 + Math.floor(Math.random() * 25),
+            speed: Math.round((footballBaseStats.speed + improvement + variation) * 10) / 10,
+            stamina: Math.round(footballBaseStats.stamina + improvement + variation),
+            agility: Math.round((footballBaseStats.agility - improvement/2 + variation/2) * 10) / 10, // Lower is better for agility
+            strength: Math.round(footballBaseStats.strength + improvement * 2 + variation),
+            goals: i % 3 === 1 ? Math.floor(Math.random() * 3) + 1 : Math.floor(Math.random() * 2),
             assists: Math.floor(Math.random() * 4),
-            notes: 'Demo training session',
+            notes: `Demo ${['training', 'match', 'practice'][i % 3]} session`,
             created_at: sessionDate.toISOString()
         });
     }
 
-    // Cricket sessions
-    for (let i = 0; i < 4; i++) {
+    // Cricket sessions with realistic performance
+    const cricketScenarios = [
+        { wickets: 3, runs: 45, type: 'match' },
+        { wickets: 1, runs: 23, type: 'training' },
+        { wickets: 4, runs: 67, type: 'match' },
+        { wickets: 2, runs: 34, type: 'practice' },
+        { wickets: 0, runs: 78, type: 'match' }, // Batting focused
+        { wickets: 5, runs: 12, type: 'practice' } // Bowling focused
+    ];
+
+    for (let i = 0; i < 5; i++) {
         const sessionDate = new Date(today);
         sessionDate.setDate(today.getDate() - (i * 3 + 2));
+        const scenario = cricketScenarios[i % cricketScenarios.length];
 
         demoSessions.push({
             id: `demo-cricket-${i}`,
             sport: 'cricket',
-            session_type: i % 2 === 0 ? 'match' : 'training',
+            session_type: scenario.type,
             date: sessionDate.toISOString().split('T')[0],
-            duration: 180 + Math.floor(Math.random() * 120),
-            wickets: Math.floor(Math.random() * 5),
-            runs: Math.floor(Math.random() * 80),
-            notes: 'Demo cricket session',
+            duration: 150 + Math.floor(Math.random() * 120),
+            wickets: scenario.wickets + Math.floor(Math.random() * 2),
+            runs: scenario.runs + Math.floor((Math.random() - 0.5) * 20),
+            notes: `Demo ${scenario.type} session`,
             created_at: sessionDate.toISOString()
         });
     }
