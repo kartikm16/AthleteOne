@@ -1705,6 +1705,12 @@ function filterNGOs(searchTerm, sport, aidType, location) {
 
 // Populate NGO directory
 function populateNGODirectory() {
+    // Ensure NGO data exists
+    if (!ngoData.ngos || ngoData.ngos.length === 0) {
+        ngoData.ngos = generateNGOData();
+    }
+
+    console.log('Populating NGO directory with', ngoData.ngos.length, 'NGOs');
     displayNGOs(ngoData.ngos);
 }
 
