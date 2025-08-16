@@ -696,6 +696,54 @@ function generateSampleData() {
     return { speed, stamina, strength };
 }
 
+// Generate demo performance sessions
+function generateDemoSessions() {
+    const demoSessions = [];
+    const today = new Date();
+
+    // Football sessions
+    for (let i = 0; i < 5; i++) {
+        const sessionDate = new Date(today);
+        sessionDate.setDate(today.getDate() - (i * 2 + 1));
+
+        demoSessions.push({
+            id: `demo-football-${i}`,
+            sport: 'football',
+            session_type: i % 3 === 0 ? 'match' : 'training',
+            date: sessionDate.toISOString().split('T')[0],
+            duration: 90 + Math.floor(Math.random() * 30),
+            speed: 20 + Math.random() * 10,
+            stamina: 70 + Math.random() * 25,
+            agility: 6 + Math.random() * 3,
+            strength: 100 + Math.random() * 40,
+            goals: i % 3 === 0 ? Math.floor(Math.random() * 3) : 0,
+            assists: Math.floor(Math.random() * 4),
+            notes: 'Demo training session',
+            created_at: sessionDate.toISOString()
+        });
+    }
+
+    // Cricket sessions
+    for (let i = 0; i < 4; i++) {
+        const sessionDate = new Date(today);
+        sessionDate.setDate(today.getDate() - (i * 3 + 2));
+
+        demoSessions.push({
+            id: `demo-cricket-${i}`,
+            sport: 'cricket',
+            session_type: i % 2 === 0 ? 'match' : 'training',
+            date: sessionDate.toISOString().split('T')[0],
+            duration: 180 + Math.floor(Math.random() * 120),
+            wickets: Math.floor(Math.random() * 5),
+            runs: Math.floor(Math.random() * 80),
+            notes: 'Demo cricket session',
+            created_at: sessionDate.toISOString()
+        });
+    }
+
+    return demoSessions.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+}
+
 function getLast30Days() {
     const dates = [];
     for (let i = 29; i >= 0; i--) {
