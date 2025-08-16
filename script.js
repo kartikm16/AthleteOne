@@ -1,11 +1,11 @@
 // Global variables for data management
 let performanceData = {
-    sessions: [],
+    sessions: generateDemoSessions(),
     currentMetrics: {
-        speed: 0,
-        stamina: 0,
-        agility: 0,
-        strength: 0
+        speed: 24.5,
+        stamina: 82,
+        agility: 7.2,
+        strength: 115
     },
     historicalData: generateSampleData()
 };
